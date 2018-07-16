@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h1> MVP</h1>
+        <input type = "text" >
+        <button onclick="alert('it is only a placeholder')" > upload files </button>
+        <p id ='upload'>if you upload nothing ,it will use the example data.</p>
+        <h2>tree_visualize</h2>
+        <div id ='demo'></div>
+        
+        <button onclick="loadDoc()" > generate_tree </button>
+
+
+        <h3>matrix_statistics</h3>
+        <script>
+            function myfunction(){
+                document.getElementById("demo").innerHTML ="haha";
+            };
+        </script>
+        <script>
+                function loadDoc() {
+                  var xhttp = new XMLHttpRequest();
+                  xhttp.onreadystatechange = function() {
+                
+                      document.getElementById("demo").innerHTML = this.responseText;
+                
+                  };
+                  xhttp.open("GET", "README.md", true);
+                  xhttp.send();
+                }
+                </script>
+    </body>
+</html>
