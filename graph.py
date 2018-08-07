@@ -24,3 +24,6 @@ def matrix():
     file1.write(toFile)
     file1.close()
     return render_template('graph/matrixt.html')
+@bp.route('/examples',methods=('GET', 'POST')
+def examples():
+    

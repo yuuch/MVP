@@ -1,21 +1,107 @@
 <html>
     <head>
-        <h1>my webpage ywch</h1>
+        <style>
+            p.big{
+                line-height:1.8
+            }
+        </style>
     </head>
-    <body>
-    <p> Clicking the example button will show you some example.</p>
-     <button id="myButton" class="float-left submit-button" >Example</button>
-     
-     <script type="text/javascript">
-         document.getElementById("myButton").onclick = function () {
-             var graph = "graph/graph"
-             location.href = graph;
-         };
-     </script>
-     <h2>Upload new File</h2>
-     <form method=post enctype=multipart/form-data>
-       <input type=file name=file>
-     <input type=submit value=Upload>
-     
+    <body>  
+        <h1>Metagenomics Visualize Platform</h1>
+        <h2>Upload File</h2>
+       
+
+        <div id='div2'>
+            1. upload your File.<br>
+            2.select which item you are interested in .
+            <title>Upload new File</title>
+            <br>
+            <br>
+    <form method=post enctype=multipart/form-data>
+      <input type=file name=file>
+      <input type=submit value=Upload>
+    </form>
+        </div>
+        <h2>Tree</h2>
+        <div>
+            <p>you can upload sequences to generate a phylogenetic tree,or upload newick tree to 
+                draw a tree
+            </p>
+        </div>
+        <div id='tree'></div>
+        <div id='div3'>
+            <form>
+                <select id='ss'>
+                    <option>sequences</option>
+                    <option>tree file</option>
+                </select>
+            </form>
+        </div>
+        <button id='draw'>Draw a tree</button>
+        <div>
+            <h2>Matrix</h2>
+
+        OTU_table file name :<input id='otutable'>(e.g.: "experiment1.otutable" without quote)
+        </div>
+        <br>
+        <div>
+        
+        gene_sequences file name:<input id='seq'>
+        </div>
+        <br>
+        <div>
+            your metadataname:<input id='metadata'>
+        </div>
+        <br>
+        <p id='p'>show otuname</p>
+        <button id='tt3' onclick="func1()">click me</button>
+        <script>
+            function draw_a_tree(){
+                var selection = document.getElementById('ss').value;
+            }
+        
+        </script>
+        <br>
+        <br>
+        Feature to be analysised:
+        <form>
+            <select id="mySelect" size=1>
+              
+            </select>
+          </form>
+          <br>
+          
+         
+          
+          
+          <script>
+          function myFunction(features=['age','country','gender']) {
+              var x = document.getElementById("mySelect");
+              //features = ["a","b","c"];
+              for(i=0;i<3;i++){
+              var option = document.createElement("option");
+                 temp = features[i];
+              option.text = temp;
+              x.add(option);
+              }
+          }
+          myFunction();
+          </script>
+        <script>
+            function func1(){
+                var otuname;
+                otuname = document.getElementById('otutable').value;
+                var gene_name;
+                gene_name = document.getElementById('seq').value;
+                var metadata_name;
+                metadata_name = document.getElementById('metadata').value;
+                var total_s;
+                total_s = 'otu_table_file: '+otuname+'\n';
+                total_s += '         gene sequence_file: ' + gene_name;
+                total_s += '\n      metadata file: ' + metadata_name;
+                //alert(typeof(otuname))
+                document.getElementById('p').innerHTML=total_s;
+            }
+        </script>
     </body>
 </html>
