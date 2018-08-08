@@ -1,7 +1,7 @@
 import functools
 import os
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for,jsonify
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -10,7 +10,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 bp = Blueprint('graph', __name__, url_prefix='/graph')
 @bp.route('/graph',methods=('GET','POST'))
 def graph():
-    return render_template('graph/bar.html')
+    return render_template('graph/test.html')
 #def generate_new_bar():
   #  path = os.getcwd()+"/graph/bar.html"
     #new_bar = open(path)
@@ -24,6 +24,10 @@ def matrix():
     file1.write(toFile)
     file1.close()
     return render_template('graph/matrixt.html')
-@bp.route('/examples',methods=('GET', 'POST')
-def examples():
-    
+@bp.route('/pruned',methods=('GET','POST'))
+def pruned():
+    return render_template('graph/pruned.html')
+@bp.route('/return_string')
+def return_string():
+    d ='hello return string'
+    return jsonify(d)

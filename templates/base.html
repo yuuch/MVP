@@ -7,6 +7,13 @@
         </style>
     </head>
     <body>  
+            <button id="myButton" class="float-left submit-button" >Home</button>
+
+            <script type="text/javascript">
+                document.getElementById("myButton").onclick = function () {
+                    location.href = "hello";
+                };
+            </script>
         <h1>Metagenomics Visualize Platform</h1>
         <h2>Upload File</h2>
        
@@ -37,7 +44,7 @@
                 </select>
             </form>
         </div>
-        <button id='draw'>Draw a tree</button>
+        <button id='draw'>Plot a tree</button>
         <div>
             <h2>Matrix</h2>
 
@@ -53,7 +60,7 @@
             your metadataname:<input id='metadata'>
         </div>
         <br>
-        <p id='p'>show otuname</p>
+        <p id='p'>show files</p>
         <button id='tt3' onclick="func1()">click me</button>
         <script>
             function draw_a_tree(){
@@ -73,7 +80,7 @@
           
          
           
-          
+         <button id='read_metadata'onclick="myFunction()">read metadata</button> 
           <script>
           function myFunction(features=['age','country','gender']) {
               var x = document.getElementById("mySelect");
@@ -85,7 +92,7 @@
               x.add(option);
               }
           }
-          myFunction();
+          //myFunction();
           </script>
         <script>
             function func1(){
