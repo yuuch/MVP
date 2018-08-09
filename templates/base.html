@@ -5,15 +5,10 @@
                 line-height:1.8
             }
         </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
     </head>
     <body>  
-            <button id="myButton" class="float-left submit-button" >Home</button>
-
-            <script type="text/javascript">
-                document.getElementById("myButton").onclick = function () {
-                    location.href = "hello";
-                };
-            </script>
         <h1>Metagenomics Visualize Platform</h1>
         <h2>Upload File</h2>
        
@@ -25,10 +20,54 @@
             <br>
             <br>
     <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
+      <input type=file name=file id='upload'>
+      <input type=submit value=Upload >
     </form>
+
+    <p id='upload_print'></p>
+    <script>function upload_print(){
+        const filename = document.getElementById('upload').value;
+        const filename2 = filename
+        document.getElementById('upload_print').innerHTML=filename2;
+        }
+        </script>
+            <button onclick='upload_print()'>click me</button> 
+
         </div>
+        
+        <script>
+            //receive json from flask
+                $(document).ready(function(){
+                    $("#return_string").click(function(){
+                        $.get("graph/return_string", function(data, status){
+                            //var obj = JSON.parse(data);
+                            document.getElementById('return_stringp').innerHTML=data['test1'];
+                            alert("Data: " +data['test1']+ "\nStatus: " + status);
+                        });
+                    });
+                });
+                </script>
+        <p id='test_send_json'></p>
+                <script>
+                    //send json to flask
+                    function send_json(){
+                    var arr = {test1: 'Moscow', test2: 25 };
+                    //document.getElementById('test_send_json').innerHTML='send json runs'
+                    $.ajax({
+                        type: "POST",
+                        url: "/graph/return_string",
+                        data: JSON.stringify(arr),
+                        dataType: "json",
+                        contentType: "application/json;charset=utf-8",
+                        success: function(data){alert(dataJ);},
+
+                        failure: function(errMsg){alert(errMsg);}
+                    })                   }
+                </script>
+                <button id='send_json' onclick="send_json()">send json</button>
+            
+        <p id='return_stringp'></p>
+        <button id='return_string'>return string</button>
         <h2>Tree</h2>
         <div>
             <p>you can upload sequences to generate a phylogenetic tree,or upload newick tree to 
@@ -63,7 +102,7 @@
         <p id='p'>show files</p>
         <button id='tt3' onclick="func1()">click me</button>
         <script>
-            function draw_a_tree(){
+            function plot_a_tree(){
                 var selection = document.getElementById('ss').value;
             }
         
@@ -103,9 +142,9 @@
                 var metadata_name;
                 metadata_name = document.getElementById('metadata').value;
                 var total_s;
-                total_s = 'otu_table_file: '+otuname+'\n';
-                total_s += '         gene sequence_file: ' + gene_name;
-                total_s += '\n      metadata file: ' + metadata_name;
+                total_s = 'otu_table_file: '+otuname+'<br>'+'<br>';
+                total_s += '\ngene sequence_file: ' + gene_name+'<br>'+'<br>';
+                total_s += '\nmetadata file: ' + metadata_name+'<br>'+'<br>';
                 //alert(typeof(otuname))
                 document.getElementById('p').innerHTML=total_s;
             }
