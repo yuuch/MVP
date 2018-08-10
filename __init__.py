@@ -10,7 +10,7 @@ def create_app(test_config=None):
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
         UPLOAD_FOLDER = os.getcwd()+'/MVP/upload_files'
     )
-    os.makedirs(os.path.join(app.instance_path,'upload_files'), exist_ok=True)
+    #os.makedirs(os.path.join(app.instance_path,'upload_files'), exist_ok=True)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing

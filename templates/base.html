@@ -94,7 +94,7 @@
         </script>
         <br>
         <br>
-         <button id='read_metadata'onclick="myFunction()">read metadata</button> 
+         <button id='read_metadata'onclick="read_metadata()">read metadata</button> 
         <br>
         Feature to be analysised:
         <form>
@@ -118,16 +118,41 @@
          
           
           <script>
-          function myFunction(features=['age','country','gender']) {
-              var x = document.getElementById("mySelect");
-              //features = ["a","b","c"];
-              for(i=0;i<3;i++){
+          function read_metadata() {
+              //features=['age','country','gender'];
+              var features;
+              var metadata_filename = document.getElementById('metadata').value;
+              var demo_filename = 'MVP/upload_files/demo/demo_metadata.tsv';
+              if (metadata_filename == ''){
+                  metadata_filename =demo_filename;
+              }else{
+                  metadata_filename='MVP/upload_files/'+metadata_filename;
+              }
+              $.ajax({
+                        type: "POST",
+                        url: "/graph/return_string",
+                        data: JSON.stringify(metadata_filename),
+                        dataType: "json",
+                        contentType: "application/json;charset=utf-8",
+                        success: function(data){
+                                      features=data;
+                                      //alert(data[0]);
+                                      var data_length = Object.keys(data).length;
+                                      for(i=0;i<data_length;i++){
               var option = document.createElement("option");
                  temp = features[i];
               option.text = temp;
               x.add(option);
-              }
-          }
+              };
+                                      },
+
+                        failure: function(errMsg){alert(errMsg);}
+                    }).responsetext;
+              var x = document.getElementById("mySelect");
+              //features = ["a","b","c"];
+              //alert(features);
+              
+          };
           //myFunction();
           </script>
         <script>

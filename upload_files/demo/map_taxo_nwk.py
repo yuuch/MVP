@@ -29,7 +29,8 @@ def map_taxo_nwk(taxo_file,nwk_file):
             temp =  taxo['Taxon'][found_index]
             temp = temp.replace('; ','#')
             ele.name = temp
-    Phylo.write(tree,'mapped_tree.nwk','newick')
+            ele.confidence =foat(taxo['Confidence'][found_index])
+    Phylo.write(tree,'mapped_tree.xml','phyloxml')
 if __name__ == "__main__" :
     map_taxo_nwk('taxonomy.tsv','tree.nwk')
 

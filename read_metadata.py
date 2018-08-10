@@ -13,7 +13,9 @@ def read_metadata(filename,sep='\t'):
     feat_type = f.readline()
     feat_type = feat_type.split(sep)
     feat_type[-1]=feat_type[-1][:-1]
-    result = list(zip(features,feat_type))[1:]
+    #result = list(zip(features,feat_type))[1:]
+    result = features
     return result
+
 if __name__ == "__main__":
     print(read_metadata('demo_metadata.tsv'))
