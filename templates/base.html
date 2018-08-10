@@ -9,32 +9,22 @@
 
     </head>
     <body>  
+        <title>Metagenomics Visualize Platform</title>
         <h1>Metagenomics Visualize Platform</h1>
         <h2>Upload File</h2>
+
        
 
         <div id='div2'>
             1. upload your File.<br>
             2.select which item you are interested in .
-            <title>Upload new File</title>
             <br>
             <br>
     <form method=post enctype=multipart/form-data>
       <input type=file name=file id='upload'>
       <input type=submit value=Upload >
     </form>
-
-    <p id='upload_print'></p>
-    <script>function upload_print(){
-        const filename = document.getElementById('upload').value;
-        const filename2 = filename
-        document.getElementById('upload_print').innerHTML=filename2;
-        }
-        </script>
-            <button onclick='upload_print()'>click me</button> 
-
-        </div>
-        
+       <!--
         <script>
             //receive json from flask
                 $(document).ready(function(){
@@ -51,7 +41,7 @@
                 <script>
                     //send json to flask
                     function send_json(){
-                    var arr = {test1: 'Moscow', test2: 25 };
+                    var arr = [{test1: 'Moscow', test2: 25 }];
                     //document.getElementById('test_send_json').innerHTML='send json runs'
                     $.ajax({
                         type: "POST",
@@ -64,10 +54,8 @@
                         failure: function(errMsg){alert(errMsg);}
                     })                   }
                 </script>
-                <button id='send_json' onclick="send_json()">send json</button>
+                -->
             
-        <p id='return_stringp'></p>
-        <button id='return_string'>return string</button>
         <h2>Tree</h2>
         <div>
             <p>you can upload sequences to generate a phylogenetic tree,or upload newick tree to 
@@ -76,10 +64,12 @@
         </div>
         <div id='tree'></div>
         <div id='div3'>
+            tree_file_name:<input id='tree_file_name'>(eg."tree1.nwk","tree2.phyxml")<br><br>
             <form>
+            file_type:
                 <select id='ss'>
-                    <option>sequences</option>
                     <option>tree file</option>
+                    <option>sequences</option>
                 </select>
             </form>
         </div>
@@ -91,12 +81,7 @@
         </div>
         <br>
         <div>
-        
-        gene_sequences file name:<input id='seq'>
-        </div>
-        <br>
-        <div>
-            your metadataname:<input id='metadata'>
+             metadata file name:<input id='metadata'>
         </div>
         <br>
         <p id='p'>show files</p>
@@ -109,6 +94,8 @@
         </script>
         <br>
         <br>
+         <button id='read_metadata'onclick="myFunction()">read metadata</button> 
+        <br>
         Feature to be analysised:
         <form>
             <select id="mySelect" size=1>
@@ -116,10 +103,20 @@
             </select>
           </form>
           <br>
-          
+        statistical methods
+        <form>
+            <select id="statistics methods">
+                <option>t-test</option>
+                <option>ks-test</option>
+                <option>some-other-test-methods</option>
+
+            </select>
+        </form>
+        statistical result:
+        <button id='gen_result'>generate result</button>
+        <p id='result'></p>
          
           
-         <button id='read_metadata'onclick="myFunction()">read metadata</button> 
           <script>
           function myFunction(features=['age','country','gender']) {
               var x = document.getElementById("mySelect");
@@ -137,13 +134,13 @@
             function func1(){
                 var otuname;
                 otuname = document.getElementById('otutable').value;
-                var gene_name;
-                gene_name = document.getElementById('seq').value;
+                //var gene_name;
+                //gene_name = document.getElementById('seq').value;
                 var metadata_name;
                 metadata_name = document.getElementById('metadata').value;
                 var total_s;
                 total_s = 'otu_table_file: '+otuname+'<br>'+'<br>';
-                total_s += '\ngene sequence_file: ' + gene_name+'<br>'+'<br>';
+                //total_s += '\ngene sequence_file: ' + gene_name+'<br>'+'<br>';
                 total_s += '\nmetadata file: ' + metadata_name+'<br>'+'<br>';
                 //alert(typeof(otuname))
                 document.getElementById('p').innerHTML=total_s;
