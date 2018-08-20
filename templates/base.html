@@ -1,12 +1,7 @@
 <html>
     <head>
-        <style>
-            p.big{
-                line-height:1.8
-            }
-        </style>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     </head>
     <body>  
         <title>Metagenomics Visualize Platform</title>
@@ -24,6 +19,7 @@
       <input type=file name=file id='upload'>
       <input type=submit value=Upload >
     </form>
+    </div>
        <!--
         <script>
             //receive json from flask
@@ -77,15 +73,13 @@
         <div>
             <h2>Matrix</h2>
 
-        OTU_table file name :<input id='otutable'>(e.g.: "experiment1.otutable" without quote)
+        feature table file name :<input id='feature_table' value='feature-table.biom'>(e.g.: "experiment1.otutable" without quote)
         </div>
         <br>
         <div>
-             metadata file name:<input id='metadata'>
+             sample metadata file name:<input id='metadata' value='demo_metadata.tsv'>
         </div>
         <br>
-        <p id='p'>show files</p>
-        <button id='tt3' onclick="func1()">click me</button>
         <script>
             function plot_a_tree(){
                 var selection = document.getElementById('ss').value;
@@ -93,16 +87,46 @@
         
         </script>
         <br>
+        <h3>filt matrix</h3>
+        Select number of features to be analysis default:<input id='Num_features' value=1>
+        <button id='feature_num' onclick="copy_options()">feature_ num_confirm</button>
+        <br>
+        Prevalence:<input id='prevalence' value=0.1>
+        <br>
+        Abundance:<input id='abundance' value=100>
+        <br>
+        Variance:<input id='variance' value=100>
+        <br>
+        <script>
+            function copy_options(){
+            var num_features =document.getElementById("Num_features").value;
+            if(num_features > 1){
+                $('#mySelect0 option').clone().appendTo('#mySelect1')
+                if(num_features > 2){
+                $('#mySelect0 option').clone().appendTo('#mySelect2')
+                }
+            }
+            }
+        </script> 
         <br>
          <button id='read_metadata'onclick="read_metadata()">read metadata</button> 
         <br>
         Feature to be analysised:
-        <form>
-            <select id="mySelect" size=1>
-              
+            <select id="mySelect0" size=1>
+                <option>None</option>
             </select>
-          </form>
+            <select id="mySelect1" size=1 type="hidden">
+            </select>
+            <select id="mySelect2" size=1 type="hidden">
+            </select>
           <br>
+        <button id="plot_heatmap" onclick="send_heatmap()">plot heatmap</button>
+        <br>
+        <br>
+        <div id='result' style="width:1000px;height:800px"></div>
+        <br>
+        <br>
+        <br>
         statistical methods
         <form>
             <select id="statistics methods">
@@ -114,9 +138,42 @@
         </form>
         statistical result:
         <button id='gen_result'>generate result</button>
-        <p id='result'></p>
-         
-          
+        <script>
+            function send_heatmap(){
+                var dict1 = {};
+                dict1.feature0 = document.getElementById('mySelect0').value;
+                dict1.feature1 = document.getElementById('mySelect1').value;
+                dict1.feature2 = document.getElementById('mySelect2').value;
+                dict1.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+                dict1.feature_table = 'MVP/upload_files/'+document.getElementById("feature_table").value;
+                dict1.prevalence = document.getElementById('prevalence').value;
+                dict1.abundance = document.getElementById('abundance').value;
+                dict1.variance = document.getElementById('variance').value;
+                //alert(typeof(JSON.stringify(dict1.metadata)));
+                console.log(JSON.stringify(dict1))
+
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/graph/heat_map",
+                    data: JSON.stringify(dict1),
+                    dataType: "json",
+                    contentType: "applications/json;charset=utf-8",
+                    success: function(data){
+                        //alert("ajax");
+                        //var result = $('<div />').append(data).find("#result").html();
+                        //$('#result').style="width:1000px;height:800px";
+                        $('#result').html(data);
+                        //document.getElementById('result').innerHTML=data;
+                    },
+                    error: function(xhr,status){
+                        alert('sorry, there are problems')
+                    }
+                }
+            )
+            }
+        </script> 
+
           <script>
           function read_metadata() {
               //features=['age','country','gender'];
@@ -142,23 +199,21 @@
               var option = document.createElement("option");
                  temp = features[i];
               option.text = temp;
-              x.add(option);
+              x0.add(option);
               };
                                       },
 
                         failure: function(errMsg){alert(errMsg);}
                     }).responsetext;
-              var x = document.getElementById("mySelect");
-              //features = ["a","b","c"];
-              //alert(features);
+              var x0 = document.getElementById("mySelect0");
               
           };
-          //myFunction();
           </script>
+
         <script>
             function func1(){
                 var otuname;
-                otuname = document.getElementById('otutable').value;
+                otuname = document.getElementById('feature_table').value;
                 //var gene_name;
                 //gene_name = document.getElementById('seq').value;
                 var metadata_name;
@@ -169,6 +224,11 @@
                 total_s += '\nmetadata file: ' + metadata_name+'<br>'+'<br>';
                 //alert(typeof(otuname))
                 document.getElementById('p').innerHTML=total_s;
+            }
+        </script>
+        <script>
+            function filt(){
+
             }
         </script>
     </body>
