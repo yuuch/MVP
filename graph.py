@@ -52,6 +52,7 @@ def heat_map():
     heatmap_instance = heatmap.Heatmap(metadata,feature_table)
     heatmap_instance.filter(prevalence_threshold=prevalence,abundance_num=abundance,variance_num=variance)
     heatmap_instance.map()
+    #print(heatmap_instance.shape[0])
     heatmap_instance.sort_by_features(features[0],features[1],features[2])
     heatmap_instance.obtain_numerical_matrix()
     result = heatmap_instance.plotly_div()
