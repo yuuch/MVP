@@ -34,6 +34,10 @@ class Heatmap(object):
         temp_meta.index = list(range(temp_meta.shape[0]))
         assert temp_meta.shape[0] == temp_table.shape[0]
         self.df = pd.concat([temp_table,temp_meta],axis=1)
+        new_index = []
+        for ele in mapped_dict['metadata']:
+            new_index.append(array1[ele])
+        self.df.index=new_index
         print(len(self.df.columns))
 
     def sort_by_features(self,*args):
@@ -106,7 +110,8 @@ class Heatmap(object):
             'col1':[1,2,3,4,5,6]
         })
         '''
-        data = [plotly.graph_objs.Heatmap(z=self.df.values.tolist())]
+        data = [plotly.graph_objs.Heatmap(z=self.df.values.tolist(),
+                                        x=list(self.df.columns),y=self.df.index)]
         layout = plotly.graph_objs.Layout(
             width = 1000,
             height = 800

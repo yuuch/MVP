@@ -55,6 +55,7 @@ def heat_map():
     #print(heatmap_instance.shape[0])
     heatmap_instance.sort_by_features(features[0],features[1],features[2])
     heatmap_instance.obtain_numerical_matrix()
+    print(heatmap_instance.df.index)
     result = heatmap_instance.plotly_div()
     return jsonify(result)
 
