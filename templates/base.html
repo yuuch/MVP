@@ -22,47 +22,13 @@
     </div>
     <h2>Annotation</h2>
     <div>
-        Taxon:<input id='Taxon' value='taxon'>
+        Taxon:<input id='Taxon' value='taxonomy.tsv'>
         <br>
         Feature_table:<input id='annotation_feature_table' value='feature-table.biom'>
         <br>
-        Choose Sample ID:
-        <select>
-        </select>
         <br>
         <button id='plot_barplot'>plot annotation</button>
     </div>
-       <!--
-        <script>
-            //receive json from flask
-                $(document).ready(function(){
-                    $("#return_string").click(function(){
-                        $.get("graph/return_string", function(data, status){
-                            //var obj = JSON.parse(data);
-                            document.getElementById('return_stringp').innerHTML=data['test1'];
-                            alert("Data: " +data['test1']+ "\nStatus: " + status);
-                        });
-                    });
-                });
-                </script>
-        <p id='test_send_json'></p>
-                <script>
-                    //send json to flask
-                    function send_json(){
-                    var arr = [{test1: 'Moscow', test2: 25 }];
-                    //document.getElementById('test_send_json').innerHTML='send json runs'
-                    $.ajax({
-                        type: "POST",
-                        url: "/graph/return_string",
-                        data: JSON.stringify(arr),
-                        dataType: "json",
-                        contentType: "application/json;charset=utf-8",
-                        success: function(data){alert(dataJ);},
-
-                        failure: function(errMsg){alert(errMsg);}
-                    })                   }
-                </script>
-                -->
             
         <h2>Tree</h2>
         <div>
@@ -72,16 +38,18 @@
         </div>
         <div id='tree'></div>
         <div id='div3'>
-            tree_file_name:<input id='tree_file_name'>(eg."tree1.nwk","tree2.phyxml")<br><br>
-            <form>
-            file_type:
-                <select id='ss'>
-                    <option>tree file</option>
-                    <option>sequences</option>
-                </select>
-            </form>
+            tree_file_name:<input id='tree_file_name' value='tree.nwk'>
+            tree_format:<select id='tree_format'>
+                <option>newick</option>
+                <option>phyloxml</option>
+            </select>
+            <br><br>
+
         </div>
-        <button id='draw'>Plot a tree</button>
+        <br>
+        input the node num of the subtree root:<input id='node_num' value=0>
+        <button id= 'plot_tree' onclick="plot_tree()">plot tree</button>
+        <div id='tree_result' style="width:1000px;height:800px"></div>
         <div>
             <h2>Matrix</h2>
 
@@ -92,12 +60,6 @@
              sample metadata file name:<input id='metadata' value='demo_metadata.tsv'>
         </div>
         <br>
-        <script>
-            function plot_a_tree(){
-                var selection = document.getElementById('ss').value;
-            }
-        
-        </script>
         <br>
         <h3>filt matrix</h3>
         Select number of features to be analysis default:<input id='Num_features' value=1>
@@ -223,24 +185,30 @@
           </script>
 
         <script>
-            function func1(){
-                var otuname;
-                otuname = document.getElementById('feature_table').value;
-                //var gene_name;
-                //gene_name = document.getElementById('seq').value;
-                var metadata_name;
-                metadata_name = document.getElementById('metadata').value;
-                var total_s;
-                total_s = 'otu_table_file: '+otuname+'<br>'+'<br>';
-                //total_s += '\ngene sequence_file: ' + gene_name+'<br>'+'<br>';
-                total_s += '\nmetadata file: ' + metadata_name+'<br>'+'<br>';
-                //alert(typeof(otuname))
-                document.getElementById('p').innerHTML=total_s;
-            }
-        </script>
-        <script>
-            function filt(){
-
+            function plot_tree(){
+                var tree_paras={}
+                tree_paras.tree_file = document.getElementById('tree_file_name').value;
+                tree_paras.node_num = document.getElementById('node_num').value;
+                tree_paras.file_type = document.getElementById('tree_format').value;
+                console.log(JSON.stringify(tree_paras))
+                $.ajax({
+                    type: "POST",
+                    url: "/graph/plot_tree",
+                    data: JSON.stringify(tree_paras),
+                    dataType: "json",
+                    contentType: "applications/json;charset=utf-8",
+                    success: function(data){
+                        //alert("ajax");
+                        //var result = $('<div />').append(data).find("#result").html();
+                        //$('#result').style="width:1000px;height:800px";
+                        $('#tree_result').html(data);
+                        //document.getElementById('result').innerHTML=data;
+                    },
+                    error: function(xhr,status){
+                        alert('sorry, there are problems')
+                    }
+                }
+                )
             }
         </script>
     </body>

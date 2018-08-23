@@ -10,6 +10,7 @@ import sys
 sys.path.append("MVP/")
 import read_metadata
 import heatmap
+import circular_tree
 #from MVP.db import get_db
 
 bp = Blueprint('graph', __name__, url_prefix='/graph')
@@ -41,21 +42,27 @@ def return_string():
 @bp.route('/heat_map',methods=('GET','POST'))
 def heat_map():
     content = request.get_json(force=True) # content is filename string
-    print(type(content))
     metadata = content['metadata']
     feature_table = content['feature_table']
     features = [content['feature0'],content['feature1'],content['feature2']]
     prevalence = content['prevalence']
     abundance = content['abundance']
     variance = content ['variance']
-
     heatmap_instance = heatmap.Heatmap(metadata,feature_table)
     heatmap_instance.filter(prevalence_threshold=prevalence,abundance_num=abundance,variance_num=variance)
     heatmap_instance.map()
-    #print(heatmap_instance.shape[0])
     heatmap_instance.sort_by_features(features[0],features[1],features[2])
     heatmap_instance.obtain_numerical_matrix()
-    print(heatmap_instance.df.index)
     result = heatmap_instance.plotly_div()
+    return jsonify(result)
+@bp.route('/plot_tree',methods=('GET','POST'))
+def plot_tree():
+    content = request.get_json(force=True)
+    tree_file = content['tree_file']
+    file_type = content['file_type']
+    node_num = int(content['node_num'])
+    tree = circular_tree.read_tree(tree_file,file_type)
+    sub_tree = circular_tree.obtain_subtree(tree,node_num)
+    result = circular_tree.plot_tree(sub_tree)
     return jsonify(result)
 
