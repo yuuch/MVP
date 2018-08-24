@@ -193,14 +193,14 @@ def plot_tree(tree,output_file='output.html'):
           )
     layout=dict(#title='example tree',
             font=dict(family='Balto',size=14),
-            width=1200,
-            height=800,
-            autosize=False,
+            #width=1200,
+            #height=800,
+            #autosize=False,
             showlegend=False,
             xaxis=axis,
             yaxis=axis, 
             hovermode='closest',
-            plot_bgcolor='rgb(245,245,245)',
+            #plot_bgcolor='rgb(245,245,245)',
             margin=dict(t=75)
            )
     fig=dict(data=[trace_radial_lines, trace_arcs, trace_nodes], layout=layout)

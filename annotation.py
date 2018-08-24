@@ -4,8 +4,9 @@ from Bio import Phylo
 import plotly
 import plotly.graph_objs as go
 class Annotation(object):
-    def __init__(self, tree_file, tree_file_format, feature_table_file, taxo_file):
-        self.tree = Phylo.read(file = tree_file,format = tree_file_format)
+    def __init__(self, tree, feature_table_file, taxo_file):
+        self.tree = tree
+        print()
         self.feature_table = biom.load_table(feature_table_file).to_dataframe().to_dense()
         self.taxonomy = pd.read_csv(taxo_file,sep='\t')
         self.taxonomy.index = self.taxonomy['Feature ID']
@@ -46,6 +47,9 @@ class Annotation(object):
                         sum_dict[level][ele] = feature_name_count_dict[feature][level][ele]
         self.barplot_dict = sum_dict
 
+    """
+
+    performed other place.
 
     def add_node_num(self,tree):
         nodes = tree.get_terminals()+tree.get_non_terminals()
@@ -53,6 +57,8 @@ class Annotation(object):
         for node in nodes:
             node.node_num = i 
             i += 1
+    """
+
     def plot_annotation(self):
         mapped_level={'level0':'Kingdom','level1':'Phylum','level2':'Class','level3':'Order',
                  'level4':'Family','level5':'Genus','level6':'Species','level7':'OTU'}
@@ -67,9 +73,9 @@ class Annotation(object):
                     )
                 data.append(trace)
         layout = go.Layout(
-            autosize =False,
-            height = 500,
-            width = 1000,
+            #autosize =False,
+            #height = 500,
+            #width = 1000,
             barmode = 'stack'
         )
         fig = go.Figure(data=data,layout=layout)

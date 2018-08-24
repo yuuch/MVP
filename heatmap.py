@@ -113,8 +113,8 @@ class Heatmap(object):
         data = [plotly.graph_objs.Heatmap(z=self.df.values.tolist(),
                                         x=list(self.df.columns),y=self.df.index)]
         layout = plotly.graph_objs.Layout(
-            width = 1000,
-            height = 800
+            #width = 1000,
+            #height = 800
         )
         fig = plotly.graph_objs.Figure(data=data,layout=layout)
         div_string = plotly.offline.plot(fig,filename='plotly.html',output_type='div')

@@ -22,12 +22,12 @@
     </div>
     <h2>Annotation</h2>
     <div>
-        Taxon:<input id='Taxon' value='taxonomy.tsv'>
+        Taxon:<input id='taxonomy_file' value='taxonomy.tsv'>
         <br>
-        Feature_table:<input id='annotation_feature_table' value='feature-table.biom'>
+        Feature_table:<input id='feature_table_file' value='feature-table.biom'>
         <br>
         <br>
-        <button id='plot_barplot'>plot annotation</button>
+        <div id='anno_result'style="width:1900px;height:900px"></div>
     </div>
             
         <h2>Tree</h2>
@@ -49,7 +49,7 @@
         <br>
         input the node num of the subtree root:<input id='node_num' value=0>
         <button id= 'plot_tree' onclick="plot_tree()">plot tree</button>
-        <div id='tree_result' style="width:1000px;height:800px"></div>
+        <div id='tree_result' style="width:1900px;height:900px"></div>
         <div>
             <h2>Matrix</h2>
 
@@ -97,7 +97,7 @@
         <button id="plot_heatmap" onclick="send_heatmap()">plot heatmap</button>
         <br>
         <br>
-        <div id='result' style="width:1000px;height:800px"></div>
+        <div id='result' style="width:1900px;height:900px"></div>
         <br>
         <br>
         <br>
@@ -187,9 +187,11 @@
         <script>
             function plot_tree(){
                 var tree_paras={}
-                tree_paras.tree_file = document.getElementById('tree_file_name').value;
+                tree_paras.tree_file = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
                 tree_paras.node_num = document.getElementById('node_num').value;
                 tree_paras.file_type = document.getElementById('tree_format').value;
+                tree_paras.feature_table_file = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+                tree_paras.taxonomy_file = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
                 console.log(JSON.stringify(tree_paras))
                 $.ajax({
                     type: "POST",
@@ -201,7 +203,8 @@
                         //alert("ajax");
                         //var result = $('<div />').append(data).find("#result").html();
                         //$('#result').style="width:1000px;height:800px";
-                        $('#tree_result').html(data);
+                        $('#tree_result').html(data[0]);
+                        $('#anno_result').html(data[1]);
                         //document.getElementById('result').innerHTML=data;
                     },
                     error: function(xhr,status){

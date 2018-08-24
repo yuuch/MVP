@@ -11,6 +11,7 @@ sys.path.append("MVP/")
 import read_metadata
 import heatmap
 import circular_tree
+import annotation
 #from MVP.db import get_db
 
 bp = Blueprint('graph', __name__, url_prefix='/graph')
@@ -61,8 +62,13 @@ def plot_tree():
     tree_file = content['tree_file']
     file_type = content['file_type']
     node_num = int(content['node_num'])
+    feature_table = content['feature_table_file']
+    taxo_file = content['taxonomy_file']
     tree = circular_tree.read_tree(tree_file,file_type)
     sub_tree = circular_tree.obtain_subtree(tree,node_num)
-    result = circular_tree.plot_tree(sub_tree)
+    tree_div = circular_tree.plot_tree(sub_tree)
+    ann = annotation.Annotation(sub_tree,feature_table,taxo_file)
+    ann_div = ann.plot_annotation()
+    result = {0:tree_div,1:ann_div}
     return jsonify(result)
 
