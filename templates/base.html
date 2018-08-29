@@ -48,6 +48,10 @@
         </div>
         <br>
         input the node num of the subtree root:<input id='node_num' value=0>
+        <select id='tree_type'>
+            <option>rectangle_tree</option>
+            <option>circular_tree</option>
+        </select>
         <button id= 'plot_tree' onclick="plot_tree()">plot tree</button>
         <div id='tree_result' style="width:1900px;height:900px"></div>
         <div>
@@ -97,7 +101,7 @@
         <button id="plot_heatmap" onclick="send_heatmap()">plot heatmap</button>
         <br>
         <br>
-        <div id='result' style="width:1900px;height:900px"></div>
+        <div id='heatmap_result' style="width:1900px;height:900px"></div>
         <br>
         <br>
         <br>
@@ -192,6 +196,12 @@
                 tree_paras.file_type = document.getElementById('tree_format').value;
                 tree_paras.feature_table_file = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
                 tree_paras.taxonomy_file = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
+                tree_paras.tree_type = document.getElementById('tree_type').value;
+                tree_paras.feature0 = document.getElementById('mySelect0').value;
+                tree_paras.feature1 = document.getElementById('mySelect1').value;
+                tree_paras.feature2 = document.getElementById('mySelect2').value;
+                tree_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+                tree_paras.feature_table = 'MVP/upload_files/'+document.getElementById("feature_table").value;
                 console.log(JSON.stringify(tree_paras))
                 $.ajax({
                     type: "POST",
@@ -205,6 +215,7 @@
                         //$('#result').style="width:1000px;height:800px";
                         $('#tree_result').html(data[0]);
                         $('#anno_result').html(data[1]);
+                        $('#heatmap_result').html(data[2]);
                         //document.getElementById('result').innerHTML=data;
                     },
                     error: function(xhr,status){

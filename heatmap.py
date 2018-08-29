@@ -3,12 +3,21 @@ import pandas as pd
 import copy
 import numpy as np
 import plotly
+from Bio import Phylo
 class Heatmap(object):
     def __init__(self,meta_data, feature_table, file_type='biom'): #metadata is sample metadata
         self.meta = pd.read_csv(meta_data,sep='\t')
         self.biom_table = biom.load_table(feature_table)
         self.df = self.biom_table.to_dataframe().transpose().to_dense()
         self.df_primary_col = self.df.columns
+        
+        '''
+        Here df is a table like:
+                otu0 otu1 otu2
+        sample0
+        sample1
+        sample2
+        '''
 
     def map(self):
         """
@@ -52,8 +61,9 @@ class Heatmap(object):
             print(list_args)
             self.df = self.df.sort_values(by=list_args)
 
-    def obtain_numerical_matrix(self):
-        new_df = self.df[self.df_primary_col]
+    def obtain_numerical_matrix(self,tree):
+        cols = [ele.name for ele in tree.get_terminals()]
+        new_df = self.df[cols]
         self.df = new_df
 
     def filter(self,prevalence_threshold=0.1, abundance_num=100, variance_num=100):
@@ -66,7 +76,6 @@ class Heatmap(object):
         prevalence_threshold = float(prevalence_threshold)
         abundance_num = int(abundance_num)
         variance_num = int(variance_num)
-
         #prevalence 
         for col in self.df_primary_col:
             non_zero_count= 0
@@ -119,6 +128,8 @@ class Heatmap(object):
         fig = plotly.graph_objs.Figure(data=data,layout=layout)
         div_string = plotly.offline.plot(fig,filename='plotly.html',output_type='div')
         return div_string
+    def normalize(self,methods='log'):
+        pass
 
 
     
