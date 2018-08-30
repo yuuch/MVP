@@ -2,11 +2,25 @@ from Bio import Phylo
 from plotly.offline import download_plotlyjs, init_notebook_mode,  iplot, plot
 init_notebook_mode(connected=True)
 import plotly.graph_objs as go
+import math
+def get_branch_depth(clade):
+    if clade.clades:
+        clade.child ={}
+        for subclade in clade.clades:
+            #print(subclade.name)
+            clade.child[subclade]= get_branch_depth(subclade)+1
+        clade.depth = max(clade.child.values())
+        return max(clade.child.values())
+    else:
+        clade.child = {}
+        clade.depth = 0
+        return 0
 def get_y_coordinates(tree):
     """
     Associates to  each clade an x-coord.
        returns dict {clade: x-coord}
     """
+    '''
     xcoords = tree.depths()
     #print(xcoords)
     #tree.depth() maps tree clades to depths (by branch length).
@@ -23,6 +37,25 @@ def get_y_coordinates(tree):
             xcoords[ele]=M-xcoords[ele]
     #print('xcoords')
     #print(xcoords)
+    #M = max(xcoords.values())
+    #for ele in xcoords:
+    #    xcoords[ele]=math.log2(1+((xcoords[ele]+M)/(M+M)))
+    #    xcoords[ele]=-math.exp(-(xcoords[ele])**2)
+    '''
+    """
+    xcoords = tree.depths(unit_branch_lengths=True)
+    M = max(xcoords.values())
+    for ele in xcoords:
+        xcoords[ele]=M-xcoords[ele]
+    """
+    '''
+    for ele in tree.get_terminals():
+        xcoords[ele]=0
+    '''
+    xcoords = {}
+    get_branch_depth(tree.root)
+    for clade in tree.find_clades(order='level'):
+        xcoords[clade] = clade.depth
     return xcoords
    
 def get_x_coordinates(tree, dist=1):
@@ -43,6 +76,8 @@ def get_x_coordinates(tree, dist=1):
 
     if tree.root.clades:
         calc_row(tree.root)
+    #########for terminal in tree.get_terminals():
+        #ycoords[terminal] -=1
     return ycoords
 #traces=[]
 def get_lines(tree,clade,xcoords,ycoords,traces):
@@ -58,7 +93,7 @@ def get_lines(tree,clade,xcoords,ycoords,traces):
             y = (y0,y_p),
             marker=dict(color='rgb(25,25,25)'),
             mode = 'lines',
-            hoverinfo=None
+            hoverinfo='none'
         )
         traces.append(trace_p)
     else:
@@ -68,9 +103,10 @@ def get_lines(tree,clade,xcoords,ycoords,traces):
                                 y=(y0,y_r),
                                  mode='lines',
                                  marker =dict(color='rgb(25,25,25)'),
-                                 hoverinfo=None
+                                 hoverinfo='none'
                                 )
             traces.append(trace_p)
+
             
     if clade.clades:
         x_l = xcoords[clade.clades[0]]
@@ -80,26 +116,34 @@ def get_lines(tree,clade,xcoords,ycoords,traces):
         y = (y0,y0) ,
         marker=dict(color='rgb(25,25,25)'),
         mode = 'lines',
-        hoverinfo=None
+        hoverinfo='none'
         )
         traces.append(trace_c)
         for ele in clade.clades:
             get_lines(tree,ele,xcoords,ycoords,traces=traces)
     else:
+
+        '''
+        # dash lines
         if y0 >0:
             trace_t = go.Scatter(
             line = dict(color='rgb(25,25,25)',dash='dash'),
             mode = 'lines',
+            hoverinfo='none',
             x =(x0,x0),
             y=(y0,0))
             traces.append(trace_t)
+        '''
 def plot_tree(tree):
     text_dict ={}
+    i = 0
     for clade in tree.find_clades(order='level'):
+        
         if clade.name:
-            text_dict[clade]='<br>name:'+clade.name+'<br> clade num:'+str(clade.num)
+            text_dict[clade]='<br>name:'+clade.name+'<br> clade num:'+str(i)
         else:
-            text_dict[clade]='<br>clade num:'+str(clade.num)
+            text_dict[clade]='<br>clade num:'+str(i)
+        i+=1
     #tree = Phylo.read('test_tree.nwk','newick')
     y_coords = get_y_coordinates(tree)
     x_coords = get_x_coordinates(tree)
@@ -132,9 +176,31 @@ def plot_tree(tree):
     #print(X)
     #print(Y)
     data = [trace]
-    layout = dict(showlegend=False)
+    layout = dict(showlegend=False,
+            xaxis=dict(
+                autorange=True,
+                 showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False
+                ),
+            yaxis=dict(
+                autorange=True,
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False
+                ),
+            hovermode = 'closest'
+    )
     for ele in traces:
         data.append(ele)
     fig =go.Figure(data=data,layout=layout)
     tree_div = plot(fig,output_type='div')
     return tree_div
+if __name__ == "__main__":
+    tree = Phylo.read('test_tree.nwk','newick')
+    f = open('tree_test.html','w')
+    f.write(plot_tree(tree))

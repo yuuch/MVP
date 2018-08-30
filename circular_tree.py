@@ -197,8 +197,23 @@ def plot_tree(tree,output_file='output.html'):
             #height=800,
             #autosize=False,
             showlegend=False,
-            xaxis=axis,
-            yaxis=axis, 
+            xaxis=dict(
+                autorange=True,
+                 showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False
+                ),
+            yaxis=dict(
+                autorange=True,
+                showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False
+                ),
+            #yaxis=axis, 
             hovermode='closest',
             #plot_bgcolor='rgb(245,245,245)',
             margin=dict(t=75)

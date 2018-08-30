@@ -51,12 +51,10 @@ class Annotation(object):
             i += 1
     def generate_colors(self):
         #colors =[]
-        colors = ['rgb(230, 25, 75)', 'rgb(60, 180, 75)', 'rgb(255, 225, 25)', 'rgb(0, 130, 200)',
-         'rgb(245, 130, 48)', 'rgb(145, 30, 180)', 'rgb(35, 70,  0)', 'rgb(70, 240, 240)', 
-         'rgb(240, 50, 230)', 'rgb(210, 245, 60)', 'rgb(250, 190, 190)', 'rgb(0, 128, 128)', 
-         'rgb(100, 0,  50)', 'rgb(230, 190, 255)',  'rgb(170, 110, 40)', 'rgb(255,255,0)',
-         'rgb(255, 250, 200)', 'rgb(128, 0, 0)', 'rgb(170, 255, 195)', 'rgb(128, 128, 0)', 
-         'rgb(255, 215, 180)', 'rgb(0, 0, 128)']
+        colors = ['rgb(255,0,0)','rgb(255,247,0)','rgb(255,0,247)','rgb(162,255,0)',
+        'rgb(255,111,0)','rgb(111,0,255)','rgb(2,104,23)','rgb(104,2,40)','rgb(2,23,104)',
+        'rgb(192,77,11)','rgb(12,192,162)','rgb(126,3,145)','rgb(17,102,7)','rgb(57,12,179)',
+        'rgb(195,216,8)','rgb(216,8,154)','rgb(6,97,94)','rgb(97,6,36)','rgb(125,218,5)']
         self.colors = colors
     def plot_annotation(self):
         mapped_level={'level0':'Kingdom','level1':'Phylum','level2':'Class','level3':'Order',
@@ -83,7 +81,7 @@ class Annotation(object):
                     else:
                         #color_index +=1
                         #color_index %= len(self.colors)
-                        temp_index = len(level_appeard_name[level])%len(self.colors)
+                        temp_index = (len(level_appeard_name[level])+int(level[5])*3)%len(self.colors)
                         level_appeard_name[level][ele]=temp_index
                     temp_color = self.colors[temp_index]
                     if ele =='Unassigned' or ele[3:]=='unassigned':
@@ -135,10 +133,19 @@ class Annotation(object):
                         result_data.append(ele[i])
         #print(result_data)
         layout = go.Layout(
-            autosize =False,
-            height = 500,
-            width = 1000,
-            barmode = 'stack'
+            #autosize =False,
+            #height = 500,
+            #width = 1000,
+            barmode = 'stack',
+            xaxis=dict(
+                autorange=True,
+                 showgrid=False,
+                zeroline=False,
+                showline=False,
+                ticks='',
+                showticklabels=False
+                ),
+            hovermode='closest'
         )
         fig = go.Figure(data=result_data,layout=layout)
         div_str = plotly.offline.plot(fig,filename='stack_bar.html',output_type='div')
