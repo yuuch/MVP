@@ -27,7 +27,7 @@
         Feature_table:<input id='feature_table_file' value='feature-table.biom'>
         <br>
         <br>
-        <div id='anno_result'style="width:1900px;height:900px"></div>
+        <div id='anno_result'style="width:1900px;height:900px" style.display='none'></div>
     </div>
             
         <h2>Tree</h2>
@@ -89,6 +89,22 @@
         <br>
          <button id='read_metadata'onclick="read_metadata()">read metadata</button> 
         <br>
+        <h2>Abundance</h2>
+        <div>abundance type:
+        <select id='abundance_type'>
+            <option>absolute</option>
+            <option>realtive</option>
+        </select>
+             </div>
+        <br>
+        <div>obtain log abundance: 
+        <select id='log'>
+            <option>yes</option>
+            <option>no </option>
+        </select>
+        </div>
+        <button id='plot_abun_result'>plot abundance</button>
+        <div id='abun_result'></div>
         Feature to be analysised:
             <select id="mySelect0" size=1>
                 <option>None</option>
