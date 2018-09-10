@@ -61,8 +61,8 @@ class Heatmap(object):
             print(list_args)
             self.df = self.df.sort_values(by=list_args)
 
-    def obtain_numerical_matrix(self,tree):
-        cols = [ele.name for ele in tree.get_terminals()]
+    def obtain_numerical_matrix(self,cols):
+        #cols = [ele.name for ele in tree.get_terminals()]
         new_df = self.df[cols]
         self.df = new_df
 

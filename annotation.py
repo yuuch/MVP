@@ -5,21 +5,28 @@ import plotly
 import plotly.graph_objs as go
 import copy
 class Annotation(object):
-    def __init__(self, tree, feature_table_file, taxo_file):
-        self.tree = tree#Phylo.read(file = tree_file,format = tree_file_format)
+    def __init__(self, cols, feature_table_file, taxo_file):
+        #self.tree = tree#Phylo.read(file = tree_file,format = tree_file_format)
+        self.cols = cols
         self.feature_table = biom.load_table(feature_table_file).to_dataframe().to_dense()
         self.taxonomy = pd.read_csv(taxo_file,sep='\t')
         self.taxonomy.index = self.taxonomy['Feature ID']
-        self.map_taxo(self.tree)
+        self.map_taxo(self.cols)
         self.generate_colors()
 
-    def map_taxo(self,tree):
-        terminals = tree.get_terminals()
-        feature_names = [node.name for node in terminals]
+    def map_taxo(self,cols):
+        #terminals = tree.get_terminals()
+        #feature_names = [node.name for node in terminals]
+        feature_names = cols
         feature_name_count_dict = {}
         for feature_name in feature_names:
             # feature_count: the number of seq in one feature(otu)
-            feature_count = sum(list(self.feature_table.loc[feature_name]))
+            #print(self.feature_table.loc[feature_name])
+            feature_count = 0
+            if len(self.feature_table.loc[feature_name])==0:
+                continue
+            else:
+                feature_count = sum(list(self.feature_table.loc[feature_name]))
             unassigned = ['Unassigned','p__unassigned','c__unassigned','o__unassigned','f__unassigned'
                          ,'g__unassigned','s__unassigned']
             if feature_count == 0:
@@ -43,12 +50,14 @@ class Annotation(object):
                 #levels['level'+str(len(levels))] = unassigned[len(levels)]    
             feature_name_count_dict[feature_name]=levels
         self.barplot_dict = feature_name_count_dict
+    '''
     def add_node_num(self,tree):
         nodes = tree.get_terminals()+tree.get_non_terminals()
         i = 0
         for node in nodes:
             node.node_num = i 
             i += 1
+    '''
     def generate_colors(self):
         #colors =[]
         colors = ['rgb(255,0,0)','rgb(255,247,0)','rgb(255,0,247)','rgb(162,255,0)',

@@ -98,13 +98,13 @@
              </div>
         <br>
         <div>obtain log abundance: 
-        <select id='log'>
+        <select id='log_flag'>
             <option>yes</option>
             <option>no </option>
         </select>
         </div>
-        <button id='plot_abun_result'>plot abundance</button>
-        <div id='abun_result'></div>
+        <button id='plot_abun_result' onclick="plot_abun()">plot abundance</button>
+        <div id='abun_result'style="width:1900px;height:900px;"></div>
         Feature to be analysised:
             <select id="mySelect0" size=1>
                 <option>None</option>
@@ -206,7 +206,7 @@
 
         <script>
             function plot_tree(){
-                var tree_paras={}
+                var tree_paras={};
                 tree_paras.tree_file = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
                 tree_paras.node_num = document.getElementById('node_num').value;
                 tree_paras.file_type = document.getElementById('tree_format').value;
@@ -241,5 +241,40 @@
                 )
             }
         </script>
+    <script>
+        function plot_abun(){
+            var abun_paras={}
+            abun_paras.feature_table_file = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+            abun_paras.taxonomy_file = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
+            abun_paras.feature0 = document.getElementById('mySelect0').value;
+            abun_paras.feature1 = document.getElementById('mySelect1').value;
+            abun_paras.feature2 = document.getElementById('mySelect2').value;
+            abun_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+            abun_paras.feature_table = 'MVP/upload_files/'+document.getElementById("feature_table").value;
+            abun_paras.abun_type = document.getElementById('abundance').value;
+            abun_paras.log_flag = document.getElementById('log_flag').value;
+            console.log(JSON.stringify(abun_paras))
+                $.ajax({
+                    type: "POST",
+                    url: "/graph/plot_abun",
+                    data: JSON.stringify(abun_paras),
+                    dataType: "json",
+                    contentType: "applications/json;charset=utf-8",
+                    success: function(data){
+                        //alert("ajax");
+                        //var result = $('<div />').append(data).find("#result").html();
+                        //$('#result').style="width:1000px;height:800px";
+                        $('#abun_result').html(data[0]);
+                        $('#anno_result').html(data[1]);
+                        $('#heatmap_result').html(data[2]);
+                        //document.getElementById('result').innerHTML=data;
+                    },
+                    error: function(xhr,status){
+                        alert('sorry, there are problems')
+                    }
+                }
+                )
+            }
+    </script>
     </body>
 </html>

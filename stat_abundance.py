@@ -2,7 +2,7 @@ import plotly
 import plotly.graph_objs as go
 import biom
 import math
-def plot_stat_abun(feature_table='feature-table.biom', abundance_type='relative',log_flag='log'):
+def plot_stat_abun(feature_table='feature-table.biom', abundance_type='absolute',log_flag='yes'):
     result_dict = {}
     df = biom.load_table(feature_table).to_dataframe().to_dense().transpose()
     for col in df.columns:
@@ -21,17 +21,19 @@ def plot_stat_abun(feature_table='feature-table.biom', abundance_type='relative'
     # log or not
     if log_flag == 'yes':
         for ele in result_dict:
-            result_dict[ele] = math.log2(result_dict[ele]+1)
+            result_dict[ele] = math.log2(result_dict[ele]+2)
     trace = go.Bar(
         x = list(result_dict.keys()),
         y = list(result_dict.values())
     )
-    div = plotly.offline.plot([trace],output_type='div')
-    return div
+    layout = go.Layout(title=abundance_type +' abundace bar plot')
+    fig = go.Figure(data=[trace],layout=layout)
+    div = plotly.offline.plot(fig,output_type='div')
+    return div,result_dict
 if __name__ == '__main__':
     div = plot_stat_abun()
     f = open('stat_abun.html','w')
-    f.write(div)
+    f.write(div[0])
     
     
 
