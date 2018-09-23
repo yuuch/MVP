@@ -21,7 +21,7 @@ def plot_stat_abun(feature_table='feature-table.biom', abundance_type='absolute'
     # log or not
     if log_flag == 'yes':
         for ele in result_dict:
-            result_dict[ele] = math.log2(result_dict[ele]+2)
+            result_dict[ele] = math.log2(result_dict[ele])
     trace = go.Bar(
         x = list(result_dict.keys()),
         y = list(result_dict.values())
@@ -31,7 +31,7 @@ def plot_stat_abun(feature_table='feature-table.biom', abundance_type='absolute'
     div = plotly.offline.plot(fig,output_type='div')
     return div,result_dict
 if __name__ == '__main__':
-    div = plot_stat_abun()
+    div = plot_stat_abun(abundance_type='relative',log_flag='no')
     f = open('stat_abun.html','w')
     f.write(div[0])
     
