@@ -14,6 +14,7 @@ import circular_tree
 import annotation
 import rectangle_tree
 import stat_abundance  
+import stats_test
 #from MVP.db import get_db
 
 bp = Blueprint('graph', __name__, url_prefix='/graph')
@@ -55,9 +56,9 @@ def heat_map():
     #heatmap_instance.filter(prevalence_threshold=prevalence,abundance_num=abundance,variance_num=variance)
     heatmap_instance.map()
     heatmap_instance.sort_by_features(features[0],features[1],features[2])
-    cols = list(heatmap_instance.df.index)
+    cols = list(heatmap_instance.df.columns)
     heatmap_instance.obtain_numerical_matrix(cols)
-    result = heatmap_instance.plotly_div()
+    result = {0:heatmap_instance.plotly_div()}
     return jsonify(result)
 @bp.route('/plot_tree',methods=('GET','POST'))
 def plot_tree():
@@ -117,6 +118,15 @@ def plot_abun():
     ann_div = ann.plot_annotation()
     result = {0:abun_div,1:ann_div,2:heatmap_div}
     return jsonify(result)
+@bp.route('/plot_stats_test',methods=('GET','POST'))
+def plot_stats_test():
+    label_col = content['label_col']
+    metadata = content['metadata']
+    feature_table = content['feature_table']
+    #features = [content['feature0'],content['feature1'],content['feature2']]
+    heatmap_instance = heatmap.Heatmap(metadata,feature_table)
+    heatmap_instance.map()
+    stats_test.choose_two_class(heatmap_instance.df,label_col)
 
 
 

@@ -7,9 +7,6 @@
         <title>Metagenomics Visualize Platform</title>
         <h1>Metagenomics Visualize Platform</h1>
         <h2>Upload File</h2>
-
-       
-
         <div id='div2'>
             1. upload your File.<br>
             2.select which item you are interested in .
@@ -27,7 +24,7 @@
         Feature_table:<input id='feature_table_file' value='feature-table.biom'>
         <br>
         <br>
-        <div id='anno_result'style="width:1900px;height:900px" style.display='none'></div>
+        <div id='anno_result'style="width:800px;height:600px" style.display='none'></div>
     </div>
             
         <h2>Tree</h2>
@@ -53,7 +50,7 @@
             <option>circular_tree</option>
         </select>
         <button id= 'plot_tree' onclick="plot_tree()">plot tree</button>
-        <div id='tree_result' style="width:1900px;height:900px"></div>
+        <div id='tree_result' style="width:800px;height:600px"></div>
         <div>
             <h2>Matrix</h2>
 
@@ -104,8 +101,8 @@
         </select>
         </div>
         <button id='plot_abun_result' onclick="plot_abun()">plot abundance</button>
-        <div id='abun_result'style="width:1900px;height:900px;"></div>
-        Feature to be analysised:
+        <div id='abun_result'style="width:800px;height:600px;"></div>
+        Feature to be analysied:
             <select id="mySelect0" size=1>
                 <option>None</option>
             </select>
@@ -117,21 +114,37 @@
         <button id="plot_heatmap" onclick="send_heatmap()">plot heatmap</button>
         <br>
         <br>
-        <div id='heatmap_result' style="width:1900px;height:900px"></div>
+        <div id='heatmap_result' style="width:800px;height:600px"></div>
         <br>
         <br>
         <br>
-        statistical methods
+        <h2>statistical methods</h2>
+        <div id='stats description'>You can do some test and correlation 
+            compute here.For example, t-test or F-test between two groups
+        labled 0 and 1.</div>
         <form>
             <select id="statistics methods">
                 <option>t-test</option>
-                <option>ks-test</option>
+                <option>F-test</option>
                 <option>some-other-test-methods</option>
-
+                <option>TO BE CONTINUED..</option>
             </select>
         </form>
         statistical result:
         <button id='gen_result'>generate result</button>
+        <div id='stat_test_result'>stat_test_result</div>
+        <h2>OTU Set Enrichment Analysis(OSEA)</h2>
+        choose the rank list.<br>
+        choose the lineage level(e.g. phylum ,genus,specied.etc)
+        <select id='set_level'>
+            <option>Kingdom</option>
+            <option>Phylum</option>
+            <option>Class</option>
+            <option>Order</option>
+            <option>Family</option>
+            <option>Genus</option>
+            <option>Species</option>
+        </select>
         <script>
             function send_heatmap(){
                 var dict1 = {};
@@ -157,7 +170,7 @@
                         //alert("ajax");
                         //var result = $('<div />').append(data).find("#result").html();
                         //$('#result').style="width:1000px;height:800px";
-                        $('#result').html(data);
+                        $('#heatmap_result').html(data[0]);
                         //document.getElementById('result').innerHTML=data;
                     },
                     error: function(xhr,status){
@@ -275,6 +288,9 @@
                 }
                 )
             }
+    </script>
+    <script>
+
     </script>
     </body>
 </html>

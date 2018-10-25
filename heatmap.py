@@ -18,6 +18,7 @@ class Heatmap(object):
         sample1
         sample2
         '''
+        print(self.df.index)
 
     def map(self):
         """
@@ -47,7 +48,7 @@ class Heatmap(object):
         for ele in mapped_dict['metadata']:
             new_index.append(array1[ele])
         self.df.index=new_index
-        print(len(self.df.columns))
+        #print(len(self.df.columns))
 
     def sort_by_features(self,*args):
         list_args = [ele for ele in args]
