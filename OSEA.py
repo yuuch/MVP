@@ -19,9 +19,16 @@ class OSEA(object):
                 {'otu1':0.9,'otu2':0.8,'otu3:0.2}
             taxon: include the lineage information about OTUs.
             set_level: it can be species ,genus, family, phylum etc.
+        Attributes:
+            set_es: a number array used for ploting es plot
+            es: enrichment score (number),it is equal to max(set_es)
         """
         self.rank_list = rank_list
         self.taxon = pd.read_csv(Taxon_file, sep='\t')
+        self.set_es = {}
+        self.es = {}
+        self.set_hit_count = {}
+        self.set_miss_count = {}
         self.set_level = set_level
         self.sets = self.get_sets()
         self.get_ES()
@@ -53,22 +60,33 @@ class OSEA(object):
         return sets  # return 
                 
         
-    def get_ES(self, power=1):
+    def get_ES(self, power=0):
         """ Compute the enrichment score for every set.
         Arg:
             power: power number used for compute es in the iterator step.
+            some other parameters are same as the GSEA(PNAS,2005)
         """
         es = {}  # enrichment score
         rank_list = self.rank_list
         index = self.index
+        
         for ele in self.sets:  # OTU set
             tmp = 0
             tmp_unit = ''
             p_hit = [0] # enrichment score for every score.p_hit minus p_miss
             p_miss = [0] 
-            rank_pow_sum = 0
+            N_R = 0
             for otu in rank_list:
-                rank_pow_sum += rank_list[otu]**power
+                taxo = self.taxon.loc[self.taxon['Feature ID']==otu]['Taxon']
+                for elem in taxo:
+                    f = elem.split(';')
+                    if len(f) > index:
+                        tmp_unit = f[index]
+                    else:
+                        tmp_unit = ''
+                if tmp_unit == ele:
+                    N_R += rank_list[otu]**power
+
             i = 1 # index used for rank_list
             N = len(rank_list)
             for otu in rank_list:  # go through rank list
@@ -81,9 +99,13 @@ class OSEA(object):
                         tmp_unit = ''
                 N_h = 0
                 if tmp_unit == ele:  # hit, like gene in some Set
+                    if ele in self.set_hit_count:
+                        self.set_hit_count[ele] += 1
+                    else:
+                        self.set_hit_count[ele] = 1
                     N_h += 1
-                    assert rank_pow_sum != 0
-                    tmp_p_hit = p_hit[-1]+(rank_list[otu]**power)/rank_pow_sum
+                    assert N_R != 0
+                    tmp_p_hit = p_hit[-1]+(rank_list[otu]**power)/N_R
                     p_hit.append(tmp_p_hit)
                     tmp_p_miss = (i-N_h)/(N-N_h)  # TODO
                     p_miss.append(tmp_p_miss)
@@ -97,14 +119,15 @@ class OSEA(object):
             point_es = []
             for j in range(len(p_hit)):
                 point_es.append(p_hit[j]-p_miss[j])
-            self.point_es = point_es
-            m = max(point_es)
-            absm = max(map(abs,point_es))
-            if absm > m:
-                es = -absm
-            else:
-                es = m
-        self.es = es
+            self.set_es[ele] = point_es
+            self.es[ele] = max(point_es)
+            #m = max(point_es)
+            #absm = max(map(abs,point_es))
+           # if absm > m:
+               # es = -absm
+            #else:
+               # es = m
+        #self.es = es
 
 def permutation_to_obtain_ranklist(feature_table, test_method_name='t_test'):
     """
@@ -143,8 +166,8 @@ def find_index(index,indexes):
     For example,indexes = [1,2,3],index = 1.3
     it will return the index 0
     """
-    for i in range(len(indexes)):
-        if i == len(indexes)-1:
+    for i in range(len(indexes)-1):
+        if i == len(indexes)-2:
             return i
         left = index -indexes[i]
         right = indexes[i+1]-index
@@ -178,7 +201,7 @@ def generate_distribution(arr):
             [0.1,0.1,0.8],[1,2,3]
     
     """
-    values, indexes = np.histogram(arr,bins=3)
+    values, indexes = np.histogram(arr,bins=100)
     values = values / sum(values)
     return values, indexes
         
