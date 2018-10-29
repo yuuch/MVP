@@ -31,7 +31,7 @@ class OSEA(object):
         self.set_miss_count = {}
         self.set_level = set_level
         self.sets = self.get_sets()
-        self.get_ES()
+        self.get_ES(rank_list)
 
     def get_sets(self):
         """ get set according to self.set_level
@@ -60,17 +60,17 @@ class OSEA(object):
         return sets  # return 
                 
         
-    def get_ES(self, power=0):
+    def get_ES(self, rank_list,power=0):
         """ Compute the enrichment score for every set.
         Arg:
             power: power number used for compute es in the iterator step.
             some other parameters are same as the GSEA(PNAS,2005)
         """
         es = {}  # enrichment score
-        rank_list = self.rank_list
+        #rank_list = self.rank_list
         index = self.index
         
-        for ele in self.sets:  # OTU set
+        for ele in self.sets:  # OTU set like ['Phylum0','Phylum1','Phylum2']
             tmp = 0
             tmp_unit = ''
             p_hit = [0] # enrichment score for every score.p_hit minus p_miss
@@ -119,8 +119,9 @@ class OSEA(object):
             point_es = []
             for j in range(len(p_hit)):
                 point_es.append(p_hit[j]-p_miss[j])
+            
             self.set_es[ele] = point_es
-            self.es[ele] = max(point_es)
+            es[ele] = max(point_es)
             #m = max(point_es)
             #absm = max(map(abs,point_es))
            # if absm > m:
@@ -128,17 +129,19 @@ class OSEA(object):
             #else:
                # es = m
         #self.es = es
+        return es
 
 def permutation_to_obtain_ranklist(feature_table, test_method_name='t_test'):
     """
     Randomly generate 0,1 labels , rank list 
     Arg:
-        feature_table: it is the file name of the biom format otu table.
+        feature_table: it is a dataframe object.
         test_method_name: t_test or F_test  a string.
     Return: 
         rank_list:a p value dict.
     """
-    df = biom.load_table(feature_table).to_dataframe().transpose().to_dense()
+    #df = biom.load_table(feature_table).to_dataframe().transpose().to_dense()
+    df = feature_table  
     n = df.shape[0]
     part1_index = []
     part2_index = []
