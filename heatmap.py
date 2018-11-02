@@ -18,7 +18,7 @@ class Heatmap(object):
         sample1
         sample2
         '''
-        print(self.df.index)
+        #print(self.df.index)
 
     def map(self):
         """

@@ -124,15 +124,20 @@
         labled 0 and 1.</div>
         <form>
             <select id="statistics methods">
-                <option>t-test</option>
-                <option>F-test</option>
+                <option>t_test</option>
+                <option>F_test</option>
                 <option>some-other-test-methods</option>
                 <option>TO BE CONTINUED..</option>
             </select>
         </form>
         statistical result:
-        <button id='gen_result'>generate result</button>
+        <button id='gen_result' onclick="plot_stats_result()">generate result</button>
         <div id='stat_test_result'>stat_test_result</div>
+        
+
+
+
+
         <h2>OTU Set Enrichment Analysis(OSEA)</h2>
         choose the rank list.<br>
         choose the lineage level(e.g. phylum ,genus,specied.etc)
@@ -145,6 +150,13 @@
             <option>Genus</option>
             <option>Species</option>
         </select>
+        <button id='gen_osea_result' onclick="plot_osea_result()">generate result</button>
+        <div id='osea_result'>osea_result</div>
+        
+        
+
+
+
         <script>
             function send_heatmap(){
                 var dict1 = {};
@@ -256,7 +268,7 @@
         </script>
     <script>
         function plot_abun(){
-            var abun_paras={}
+            var abun_paras = {};
             abun_paras.feature_table_file = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
             abun_paras.taxonomy_file = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
             abun_paras.feature0 = document.getElementById('mySelect0').value;
@@ -290,7 +302,55 @@
             }
     </script>
     <script>
+        function plot_stats_result(){
+            var stats_paras = {};
+            stats_paras.stats_method = document.getElementById('statistics methods').value;
+            stats_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+            stats_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+            stats_paras.label_col = document.getElementById('mySelect0').value;
+            console.log(JSON.stringify(stats_paras))
+                $.ajax({
+                    type: "POST",
+                    url: "/graph/plot_stats_test",// TODO
+                    data: JSON.stringify(stats_paras),
+                    dataType: "json",
+                    contentType: "applications/json;charset=utf-8",
+                    success: function(data){
+                        $('#stat_test_result').html(data[0]);
+                    },
+                    error: function(xhr,status){
+                        alert('sorry, there are problems')
+                    }
+                }
+                )
+        }
 
     </script>
+    <script>
+        function plot_osea_result(){
+            var osea_paras = {};
+            osea_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+            osea_paras.taxonomy = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
+            osea_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+            osea_paras.obj_col = document.getElementById('mySelect0').value;
+            osea_paras.set_level = document.getElementById('set_level').value;
+            console.log(JSON.stringify(osea_paras))
+                $.ajax({
+                    type: "POST",
+                    url: "/graph/plot_OSEA",// TODO
+                    data: JSON.stringify(osea_paras),
+                    dataType: "json",
+                    contentType: "applications/json;charset=utf-8",
+                    success: function(data){
+                        $('#osea_result').html(data[0]);
+                    },
+                    error: function(xhr,status){
+                        alert('sorry, there are problems')
+                    }
+                }
+                )
+        }
+    </script>
     </body>
+
 </html>

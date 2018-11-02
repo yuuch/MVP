@@ -26,12 +26,12 @@ class OSEA(object):
         self.rank_list = rank_list
         self.taxon = pd.read_csv(Taxon_file, sep='\t')
         self.set_es = {}
-        self.es = {}
         self.set_hit_count = {}
         self.set_miss_count = {}
         self.set_level = set_level
         self.sets = self.get_sets()
-        self.get_ES(rank_list)
+        self.otu_dict = self.map_otu_taxo()
+        self.es = self.get_ES(rank_list)
 
     def get_sets(self):
         """ get set according to self.set_level
@@ -58,8 +58,23 @@ class OSEA(object):
                 else:
                     sets.append(unit)
         return sets  # return 
-                
-        
+    def map_otu_taxo(self):
+        """Map otus to the defined lineage level .(e.g Phylum)
+        Return:
+            otu_dict:{otu1: phylum0, otu2: phylum2}
+        """
+        otu_dict = {}
+        for otu in self.rank_list:
+            taxo = self.taxon.loc[self.taxon['Feature ID']==otu]['Taxon']
+            for elem in taxo:
+                tmp_unit = ''
+                f = elem.split(';')
+                if len(f) > self.index:
+                    tmp_unit = f[self.index]
+                else:
+                    tmp_unit = ''
+                otu_dict[otu] = tmp_unit
+        return otu_dict
     def get_ES(self, rank_list,power=0):
         """ Compute the enrichment score for every set.
         Arg:
@@ -77,28 +92,16 @@ class OSEA(object):
             p_miss = [0] 
             N_R = 0
             for otu in rank_list:
-                taxo = self.taxon.loc[self.taxon['Feature ID']==otu]['Taxon']
-                for elem in taxo:
-                    f = elem.split(';')
-                    if len(f) > index:
-                        tmp_unit = f[index]
-                    else:
-                        tmp_unit = ''
-                if tmp_unit == ele:
+                taxo = self.otu_dict[otu]
+                if taxo == ele:
                     N_R += rank_list[otu]**power
 
             i = 1 # index used for rank_list
             N = len(rank_list)
             for otu in rank_list:  # go through rank list
-                taxo = self.taxon.loc[self.taxon['Feature ID']==otu]['Taxon']
-                for elem in taxo:
-                    f = elem.split(';')
-                    if len(f) > index:
-                        tmp_unit = f[index]
-                    else:
-                        tmp_unit = ''
+                taxo = self.otu_dict[otu]
                 N_h = 0
-                if tmp_unit == ele:  # hit, like gene in some Set
+                if taxo == ele:  # hit, like gene in some Set
                     if ele in self.set_hit_count:
                         self.set_hit_count[ele] += 1
                     else:
@@ -119,7 +122,6 @@ class OSEA(object):
             point_es = []
             for j in range(len(p_hit)):
                 point_es.append(p_hit[j]-p_miss[j])
-            
             self.set_es[ele] = point_es
             es[ele] = max(point_es)
             #m = max(point_es)
@@ -192,9 +194,8 @@ def p_value(sample_value,distribution):
     index = find_index(sample_value,distribution[1])
     prob = distribution[0][index]
     pvalue = 0
-    for ele in distribution[0]:
-        if ele <= prob:
-            pvalue += ele
+    for i in range(index,len(distribution[0])):
+        pvalue += distribution[0][i]
     return pvalue
 def generate_distribution(arr):
     """Generate a distribution of the given array.
@@ -204,11 +205,23 @@ def generate_distribution(arr):
             [0.1,0.1,0.8],[1,2,3]
     
     """
-    values, indexes = np.histogram(arr,bins=100)
+    values, indexes = np.histogram(arr,bins=1000)
     values = values / sum(values)
     return values, indexes
-        
 
+def obtain_rank_list(df1, df2, test_method_name='t_test'):
+    methods = {'t_test': stats_test.t_test,
+               'F_test': stats_test.F_test}
+    test_method = methods[test_method_name]
+    rank_list_unsort = {}
+    for col in part1.columns:
+        tmp_pvalue = test_method(part1[col],part2[col])
+        rank_list_unsort[col]=tmp_pvalue
+    tmp_list = sorted(rank_list_unsort, key=rank_list_unsort.get,reverse=True)
+    rank_list = {}
+    for ele in tmp_list:
+        rank_list[ele]=rank_list_unsort[ele]
+    return rank_list      
 
 
 

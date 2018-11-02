@@ -1,6 +1,7 @@
 import numpy as np 
 import scipy.stats as stats
 import pandas as pd
+import plotly
 def jacknife(arr):
     n = len(arr)
     if n == 1:
@@ -42,6 +43,13 @@ def correlation(arr1, arr2, corr_type='spearman'):
                }
     method = methods[corr_type]
     return method(arr1,arr2)
+def fisher_exact_test(arr11, arr12, arr21, arr22):
+    tmp11 = sum(arr11)
+    tmp12 = sum(arr12)
+    tmp21 = sum(arr21)
+    tmp22 = sum(arr22)
+    oddsratio,pvalue = stats.fisher_exact([[tmp11, tmp12], [tmp21, tmp22]])
+    return oddsratio, pvalue
 
 def choose_two_class(dataframe, column):
     tmp = ''
@@ -60,3 +68,36 @@ def choose_two_class(dataframe, column):
     df_part1 = dataframe.iloc[part1_index]
     df_part2 = dataframe.iloc[part2_index]
     return df_part1,df_part2
+def perform_test(df1, df2, method_name):
+    """ perform test...for multi otus
+        Args:
+            df1, df2: dataframe1, 2 which possess the same columns
+            method_name: a test name(string) like t_test of F_test or  fisher_exact_test
+    """
+    methods = {'F_test':F_test,
+               't_test':t_test,
+               'fisher_exact_test':fisher_exact_test}
+    if method_name not in methods:
+        print('Please input the right method name:t_test,F_test,fisher_exact_test')
+        return -1
+    method = methods[method_name]
+    result_dict = {}
+    if method_name == 'fisher_exact_name':
+        pass
+    else: # for t_test and F_test
+        for col in df1.columns:
+            value = method(df1[col], df2[col])
+            result_dict[col] = value
+    return result_dict
+def plot_result_dict(result_dict):
+    data = [plotly.graph_objs.Bar(
+        x = list(result_dict.keys()),
+        y = list(result_dict.values())
+        )]
+    layout =plotly.graph_objs.Layout(
+        autosize = True
+    )
+    fig = plotly.graph_objs.Figure(data=data, layout=layout)
+    div_str = plotly.offline.plot(fig, output_type='div')
+    return div_str   
+

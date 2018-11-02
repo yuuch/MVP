@@ -15,6 +15,8 @@ import annotation
 import rectangle_tree
 import stat_abundance  
 import stats_test
+import OSEA    
+import perform_osea
 #from MVP.db import get_db
 
 bp = Blueprint('graph', __name__, url_prefix='/graph')
@@ -120,14 +122,32 @@ def plot_abun():
     return jsonify(result)
 @bp.route('/plot_stats_test',methods=('GET','POST'))
 def plot_stats_test():
+    content = request.get_json(force=True)
     label_col = content['label_col']
     metadata = content['metadata']
     feature_table = content['feature_table']
+    test_method = content['stats_method']
     #features = [content['feature0'],content['feature1'],content['feature2']]
     heatmap_instance = heatmap.Heatmap(metadata,feature_table)
     heatmap_instance.map()
-    stats_test.choose_two_class(heatmap_instance.df,label_col)
-
-
+    part1, part2 = stats_test.choose_two_class(heatmap_instance.df,label_col)
+    part1  = part1[heatmap_instance.df_primary_col]
+    part2  = part2[heatmap_instance.df_primary_col]
+    test_result = stats_test.perform_test(part1,part2,test_method)
+    div_str = stats_test.plot_result_dict(test_result)
+    result={0:div_str}
+    return jsonify(result)
+@bp.route('/plot_OSEA',methods=('GET','POST'))
+def plot_OSEA():
+    content = request.get_json(force=True)
+    metadata =content['metadata']
+    taxonomy = content['taxonomy']
+    feature_table = content['feature_table']
+    set_level = content['set_level']
+    obj_col = content['obj_col']
+    osea_result = perform_osea.run_osea(taxonomy, feature_table, 
+        metadata,obj_col,set_level)
+    result = {0:perform_osea.plot_final_result(osea_result)}
+    return jsonify(result)
 
 
