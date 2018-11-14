@@ -17,6 +17,7 @@ import stat_abundance
 import stats_test
 import OSEA    
 import perform_osea
+import dimension_reduce
 #from MVP.db import get_db
 
 bp = Blueprint('graph', __name__, url_prefix='/graph')
@@ -137,6 +138,7 @@ def plot_stats_test():
     div_str = stats_test.plot_result_dict(test_result)
     result={0:div_str}
     return jsonify(result)
+
 @bp.route('/plot_OSEA',methods=('GET','POST'))
 def plot_OSEA():
     content = request.get_json(force=True)
@@ -149,5 +151,26 @@ def plot_OSEA():
         metadata,obj_col,set_level)
     result = {0:perform_osea.plot_final_result(osea_result)}
     return jsonify(result)
+
+@bp.route('/plot_dim_reduce',methods=('GET' ,'POST'))
+def plot_dim_reduce():
+    content = request.get_json(force=True)
+    metadata =content['metadata']
+    feature_table = content['feature_table']
+    obj_col = content['obj_col']
+    # new buttons
+    n_component = content['n_component']
+    method = content['method']
+    flag_3d = content['flag_3d']
+
+    heatmap_instance = heatmap.Heatmap(metadata,feature_table)
+    heatmap_instance.map()
+    labels = heatmap_instance.df[obj_col]
+    matrix = heat_map.df[heatmap_instance.df_primary_col]
+    reduced = dimension_reduce.reduce_dimension(matrix,n_component,method)
+    div = dimension_reduce.dimension_reduce_visualize(reduced,labels,flag_3d)
+    result = {0:dimension_reduce.run()}
+    return jsonify(result)
+    
 
 
