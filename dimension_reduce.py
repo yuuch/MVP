@@ -54,7 +54,8 @@ def reduce_dimension(matrix, n_component, method='Isomap'):
         'MDS':sklearn.manifold.MDS
     }
     method_class = methods[method]
-    embedding = method_class(n_component)
+    embedding = method_class(n_components=n_component)
+    print(embedding)
     result = embedding.fit_transform(matrix)
     return result
 
