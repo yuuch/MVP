@@ -159,17 +159,17 @@ def plot_dim_reduce():
     feature_table = content['feature_table']
     obj_col = content['obj_col']
     # new buttons
-    n_component = int(content['n_component'])
+    n_component = content['n_component']
     method = content['method']
     flag_3d = content['flag_3d']
 
     heatmap_instance = heatmap.Heatmap(metadata,feature_table)
     heatmap_instance.map()
     labels = heatmap_instance.df[obj_col]
-    matrix = heatmap_instance.df[heatmap_instance.df_primary_col]
+    matrix = heat_map.df[heatmap_instance.df_primary_col]
     reduced = dimension_reduce.reduce_dimension(matrix,n_component,method)
     div = dimension_reduce.dimension_reduce_visualize(reduced,labels,flag_3d)
-    result = {0:div}
+    result = {0:dimension_reduce.run()}
     return jsonify(result)
     
 

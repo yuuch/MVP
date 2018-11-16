@@ -1,5 +1,5 @@
 import plotly
-import plotly.graph_objs as go
+import ploly.graph_objs as go
 import sklearn.manifold
 def dimension_reduce_visualize(X,labels,flag_3d=False):
     """ visualize the result of dimension reduction by ISOmap or MDS
@@ -11,13 +11,13 @@ def dimension_reduce_visualize(X,labels,flag_3d=False):
     """
     labels_dict = {}
     for i in range(len(labels)):
-        if labels[i] in labels_dict:
-            labels_dict[labels[i]].append(i)
+        if ele in labels_dict:
+            labels_dict[ele].append(i)
         else:
-            labels_dict[labels[i]] = [i]
+            labels_dict[ele] = [i]
     traces = []
     for label in labels_dict:
-        if flag_3d == 'False':
+        if flag_3d == False:
             trace = go.Scatter(
                 x = X[labels_dict[label], 0],
                 y = X[labels_dict[label], 1],
@@ -37,7 +37,7 @@ def dimension_reduce_visualize(X,labels,flag_3d=False):
     layout = go.Layout(
         title = 'dimension reduction'
     )
-    fig = go.Figure(data=traces, layout =layout)
+    fig = go.Fig(data=traces, layout =layout)
     div_str = plotly.offline.plot(traces, output_type='div')
     return div_str
 def reduce_dimension(matrix, n_component, method='Isomap'):

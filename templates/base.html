@@ -153,24 +153,7 @@
         <button id='gen_osea_result' onclick="plot_osea_result()">generate result</button>
         <div id='osea_result'>osea_result</div>
         
-       <h2>Dimension Reduction</h2>
-       n_component(which deicde the number of dimensions after dimension reduction):
-       <select id='flag_3d'>
-           <option>False</option>
-           <option>True</option>
-       </select> 
-       <br>
-       <select id='n_component'>
-           <option>2</option>
-           <option>3</option>
-       </select> 
-       <br>
-       <select id='method'>
-           <option>Isomap</option>
-           <option>MDS</option>
-       </select> 
-       <button id='gen_dim_reduce_result' onclick="plot_dim_reduce_result()">generate dim_reduce result</button>
-       <div id='dim_reduce_result'>dim_reduce_result</div>
+        
 
 
 
@@ -367,33 +350,6 @@
                 }
                 )
         }
-    </script>
-    <script>
-        function plot_dim_reduce_result(){
-            var dim_paras = {};
-            dim_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
-            dim_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
-            dim_paras.obj_col = document.getElementById('mySelect0').value;
-            dim_paras.flag_3d = document.getElementById('flag_3d').value;
-            dim_paras.n_component = document.getElementById('n_component').value;
-            dim_paras.method = document.getElementById('method').value;
-            console.log(JSON.stringify(dim_paras))
-                $.ajax({
-                    type: "POST",
-                    url: "/graph/plot_dim_reduce",// TODO
-                    data: JSON.stringify(dim_paras),
-                    dataType: "json",
-                    contentType: "applications/json;charset=utf-8",
-                    success: function(data){
-                        $('#dim_reduce_result').html(data[0]);
-                    },
-                    error: function(xhr,status){
-                        alert('sorry, there are problems')
-                    }
-                }
-                )
-        }
-               
     </script>
     </body>
 
