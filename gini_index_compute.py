@@ -112,8 +112,8 @@ def get_tree_with_gini_index(tree,leaves_dict):
     compute_recursion(root_node)
     return tree
 #if __name__ == "__main__":
-def perform(tree_file, feature_table):
-    tree = get_tree(tree_file)
+def perform(tree, feature_table):
+    #tree = get_tree(tree_file)
     otus = get_otus(feature_table)
     tree = get_tree_with_gini_index(tree,otus)
     return tree

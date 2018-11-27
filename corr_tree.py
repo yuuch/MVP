@@ -59,7 +59,7 @@ def get_y_coordinates(tree):
         xcoords[clade] = clade.depth
     return xcoords
 
-def corr(array, corr_type='spearman', col_label=col_label):
+def corr(array, corr_type='spearman', col_label='col_label'):
     #initial_seq = [0,0.0]
     # stats.corr.
     """get the correlation betweent two  arrays which possess the same length
@@ -89,7 +89,7 @@ def get_x_coordinates(tree, dist=1):
         """
     for clade in tree.find_clades(order='level'):
         #TODO corr function
-        ycoords[clade] = corr(clade.sample_dict.values())
+        ycoords[clade] = corr(list(clade.sample_dict.values()))
     return ycoords
 
 def get_lines(tree,clade,xcoords,ycoords,traces):
@@ -201,7 +201,8 @@ def plot_tree(tree):
     tree_div = plot(fig,output_type='div')
     return tree_div
 def run_this_script(tree_file, feature_table):
-    tree = gini_index_compute.perform(tree_file, feature_table)
+    tree = gini_index_compute.get_tree(tree_file)
+    tree = gini_index_compute.perform(tree, feature_table)
     div = plot_tree(tree)
     return div
 if __name__ == "__main__":

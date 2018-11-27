@@ -132,7 +132,7 @@
         </form>
         statistical result:
         <button id='gen_result' onclick="plot_stats_result()">generate result</button>
-        <div id='stat_test_result'>stat_test_result</div>
+        <div id='stat_test_result' style="width:800px;height:600px">stat_test_result</div>
         
 
 
@@ -151,7 +151,7 @@
             <option>Species</option>
         </select>
         <button id='gen_osea_result' onclick="plot_osea_result()">generate result</button>
-        <div id='osea_result'>osea_result</div>
+        <div id='osea_result' style="width:800px;height:600px">osea_result</div>
         
        <h2>Dimension Reduction</h2>
        n_component(which deicde the number of dimensions after dimension reduction):
@@ -170,8 +170,18 @@
            <option>MDS</option>
        </select> 
        <button id='gen_dim_reduce_result' onclick="plot_dim_reduce_result()">generate dim_reduce result</button>
-       <div id='dim_reduce_result'>dim_reduce_result</div>
+       <div id='dim_reduce_result' style="width:800px;height:600px">dim_reduce_result</div>
 
+       <h2>Diversity</h2>
+       <h3>alpha diversity</h3>
+        alpha table file name :<input id='alpha_table_file' value='alpha-diversity.tsv'>
+       <button id='gen_alpha_diversity_result' onclick="plot_alpha_div()">plot alpha div</button>
+       <div id='alpha_diversity_result' style="width:800px;height: 600px"></div>
+        distance matrix file name :<input id='distance_matrix_file' value='distance-matrix.tsv'>
+       
+       <h3>beta diversity</h3>
+       <button id='gen_beta_diversity_result' onclick="plot_beta_div()">plot beta div</button>
+       <div id='beta_diversity_result' style="width:800px;height: 600px"></div>
 
 
         <script>
@@ -394,6 +404,54 @@
                 )
         }
                
+    </script>
+    <script>
+        function plot_alpha_div(){
+            var alpha_paras = {};
+            alpha_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+            alpha_paras.alpha_table = 'MVP/upload_files/'+document.getElementById('alpha_table_file').value;
+            alpha_paras.obj_col = document.getElementById('mySelect0').value;
+            console.log(JSON.stringify(alpha_paras))
+                $.ajax({
+                    type: "POST",
+                    url: "/graph/plot_alpha_diversity",// TODO
+                    data: JSON.stringify(alpha_paras),
+                    dataType: "json",
+                    contentType: "applications/json;charset=utf-8",
+                    success: function(data){
+                        $('#alpha_diversity_result').html(data[0]);
+                    },
+                    error: function(xhr,status){
+                        alert('sorry, there are problems in plot alpha diversity')
+                    }
+                }
+                )
+
+        }
+    </script>
+    <script>
+        function plot_beta_div(){
+            var beta_paras = {};
+            beta_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+            beta_paras.distance_matrix = 'MVP/upload_files/'+document.getElementById('distance_matrix_file').value;
+            beta_paras.obj_col = document.getElementById('mySelect0').value;
+            console.log(JSON.stringify(beta_paras))
+                $.ajax({
+                    type: "POST",
+                    url: "/graph/plot_beta_diversity",// TODO
+                    data: JSON.stringify(beta_paras),
+                    dataType: "json",
+                    contentType: "applications/json;charset=utf-8",
+                    success: function(data){
+                        $('#beta_diversity_result').html(data[0]);
+                    },
+                    error: function(xhr,status){
+                        alert('sorry, there are problems in plot beta diversity')
+                    }
+                }
+                )
+
+        }
     </script>
     </body>
 

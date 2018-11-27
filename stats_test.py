@@ -90,9 +90,10 @@ def perform_test(df1, df2, method_name):
             result_dict[col] = value
     return result_dict
 def plot_result_dict(result_dict):
-    data = [plotly.graph_objs.Bar(
+    data = [plotly.graph_objs.Scatter(
         x = list(result_dict.keys()),
-        y = list(result_dict.values())
+        y = list(result_dict.values()),
+        mode = 'markers'
         )]
     layout =plotly.graph_objs.Layout(
         autosize = True

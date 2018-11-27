@@ -18,6 +18,8 @@ import stats_test
 import OSEA    
 import perform_osea
 import dimension_reduce
+import diversity
+#import corr_tree
 #from MVP.db import get_db
 
 bp = Blueprint('graph', __name__, url_prefix='/graph')
@@ -163,8 +165,8 @@ def plot_dim_reduce():
     method = content['method']
     flag_3d = content['flag_3d']
 
-    print(type(n_component))
-    print(n_component)
+    #print(type(n_component))
+    #print(n_component)
 
     heatmap_instance = heatmap.Heatmap(metadata,feature_table)
     heatmap_instance.map()
@@ -177,6 +179,52 @@ def plot_dim_reduce():
     div = dimension_reduce.dimension_reduce_visualize(reduced,labels,flag_3d)
     result = {0:div}
     return jsonify(result)
-    
+"""
+@bp.route('plot_corr_tree', methods=('GET', 'POST'))
+def plot_corr_tree():
+    content = request.get_json(force=True)
+    metadata =content['metadata']
+    feature_table = content['feature_table']
+    obj_col = content['obj_col']
+    tree_file = content['tree_file']
+    file_type = content['file_type']
+    node_num = int(content['node_num'])
 
-
+    heatmap_instance = heatmap.Heatmap(metadata,feature_table)
+    heatmap_instance.map()
+    labels = heatmap_instance.df[obj_col]
+    feature_table = heatmap_instance.df[heatmap_instance.df_primary_col]
+    tree = circular_tree.read_tree(tree_file,file_type)
+    sub_tree = circular_tree.obtain_subtree(tree,node_num)
+    sub_tree = gini_index_compute.perform(sub_tree, feature_table)
+    div = plot_tree(sub_tree)
+    result = {0:div}
+    return jsonify(result)
+"""
+@bp.route('plot_alpha_diversity',methods=('GET', 'POST'))
+def plot_alpha_diversity():
+    content = request.get_json(force=True)
+    metadata = content['metadata']
+    alpha_table = content['alpha_table']
+    obj_col = content['obj_col']
+    tmp_result = diversity.alpha_diversity(
+        alpha_table=alpha_table,
+        metadata=metadata,
+        label_col=obj_col)
+    div = diversity.alpha_box_plot(tmp_result)
+    result = {0:div}
+    return jsonify(result)
+@bp.route('plot_beta_diversity',methods=('GET', 'POST'))
+def plot_beta_diversity():
+    content = request.get_json(force=True)
+    metadata = content['metadata']
+    distance_matrix = content['distance_matrix']
+    obj_col = content['obj_col']
+    beta_dict = diversity.beta_diversity(
+        col=obj_col,
+        metadata_file=metadata,
+        distance_matrix=distance_matrix
+    )
+    div = diversity.plot_beta_scatter(beta_dict)
+    result = {0:div}
+    return jsonify(result)
