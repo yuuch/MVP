@@ -4,6 +4,9 @@ init_notebook_mode(connected=True)
 import plotly.graph_objs as go
 import math
 import gini_index_compute
+import scipy.stats
+import pandas as pd
+import stats_test
 def get_branch_depth(clade):
     if clade.clades:
         clade.child ={}
@@ -59,21 +62,7 @@ def get_y_coordinates(tree):
         xcoords[clade] = clade.depth
     return xcoords
 
-def corr(array, corr_type='spearman', col_label='col_label'):
-    #initial_seq = [0,0.0]
-    # stats.corr.
-    """get the correlation betweent two  arrays which possess the same length
-    Return:
-        correlation value: emmm..
-        pvalue: the null hypothesis is arr1 and arr2 are not uncorrelated.
-        For example, it will return (0.9,0.0) which means thre corr is 0.9 and
-        arr1 and arr2 are significantly correlated.
-    """
-    methods = {'spearman':stats.spearmanr,
-               'pearson':stats.pearsonr
-               }
-    method = methods[corr_type]
-    return method(array,col_label)
+
 
 def get_x_coordinates(tree, dist=1):
     """Get the x coordinates.
@@ -87,11 +76,12 @@ def get_x_coordinates(tree, dist=1):
        The y-coordinates are  (float) multiple of integers (i*dist below)
        dist depends on the number of tree leafs
         """
+    ycoords ={}
     for clade in tree.find_clades(order='level'):
         #TODO corr function
-        ycoords[clade] = corr(list(clade.sample_dict.values()))
+        ycoords[clade] = clade.corr_value
+        #corr(list(clade.sample_dict.values()))
     return ycoords
-
 def get_lines(tree,clade,xcoords,ycoords,traces):
     path = tree.get_path(clade)
     x0 = xcoords[clade]
@@ -101,7 +91,7 @@ def get_lines(tree,clade,xcoords,ycoords,traces):
         x_p = xcoords[parent]
         y_p = ycoords[parent]
         trace_p = go.Scatter(# trace parent vertical line
-            x = (x0,x0),
+            x = (x0,x_p),
             y = (y0,y_p),
             marker=dict(color='rgb(25,25,25)'),
             mode = 'lines',
@@ -111,16 +101,17 @@ def get_lines(tree,clade,xcoords,ycoords,traces):
     else:
         if len(path) == 1: # this calde is the subclade of root
             y_r = ycoords[tree.root]
-            trace_p = go.Scatter(x=(x0,x0),
+            x_r = xcoords[tree.root]
+            trace_p = go.Scatter(x=(x0,x_r),
                                 y=(y0,y_r),
                                  mode='lines',
                                  marker =dict(color='rgb(25,25,25)'),
                                  hoverinfo='none'
                                 )
             traces.append(trace_p)
-
             
     if clade.clades:
+        '''
         x_l = xcoords[clade.clades[0]]
         x_r = xcoords[clade.clades[-1]]
         trace_c = go.Scatter(
@@ -131,12 +122,12 @@ def get_lines(tree,clade,xcoords,ycoords,traces):
         hoverinfo='none'
         )
         traces.append(trace_c)
+        '''
         for ele in clade.clades:
             get_lines(tree,ele,xcoords,ycoords,traces=traces)
     else:
         pass
-
-        '''
+'''
         # dash lines
         if y0 >0:
             trace_t = go.Scatter(
@@ -147,6 +138,48 @@ def get_lines(tree,clade,xcoords,ycoords,traces):
             y=(y0,0))
             traces.append(trace_t)
         '''
+def obtain_series(metadata_file,col):
+    df = pd.read_csv(metadata_file, sep='\t')
+    df = df.set_index(df[df.columns[0]])
+    series = df[col]
+    return series
+
+def compute_corr_value(tree, series,method='spearman'):
+    #TODO judge the type of series value
+    try:
+        float(series[len(series)-1])
+        is_num = True
+    except:
+        is_num = False
+    corr_methods = {'spearman': scipy.stats.spearmanr,
+                    'pearson': scipy.stats.pearsonr
+    }
+    stat_methods = {'t_test':stats_test.t_test,
+                    'F_test':stats_test.F_test
+    }
+    corr = ''
+    if is_num: #correlation
+        if method in corr_methods:
+            corr = corr_methods[method]
+        else:
+            corr = corr_methods['spearman']
+    else:  # statistical method
+        if method in stat_methods:
+            corr = stat_methods[method]
+        else:
+            corr = stat_methods['t_test']
+    for clade in tree.find_clades(order='level'):
+        otu_list = list(clade.sample_dict.values())
+        label_list = []
+        for ele in clade.sample_dict:
+            label_list.append(series[ele])
+        if is_num:
+            clade.corr_value = corr(otu_list,label_list)[0]
+        else:
+            clade.corr_value = corr(otu_list,label_list)
+    return tree
+
+    
 def plot_tree(tree):
     text_dict ={}
     i = 0
@@ -200,9 +233,12 @@ def plot_tree(tree):
     fig =go.Figure(data=data,layout=layout)
     tree_div = plot(fig,output_type='div')
     return tree_div
-def run_this_script(tree_file, feature_table):
-    tree = gini_index_compute.get_tree(tree_file)
+def run_this_script(tree, feature_table,metadata,col):
+    #tree = gini_index_compute.get_tree(tree_file)
     tree = gini_index_compute.perform(tree, feature_table)
+    series = obtain_series(metadata,col)
+    tree = compute_corr_value(tree,series)
+    #return tree
     div = plot_tree(tree)
     return div
 if __name__ == "__main__":

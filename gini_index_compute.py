@@ -108,7 +108,7 @@ def get_tree_with_gini_index(tree,leaves_dict):
         retur a tree with gini index in its nodes.
     """
     initialize_tree_leaves(tree,leaves_dict)
-    root_node = tree.clade
+    root_node = tree.root
     compute_recursion(root_node)
     return tree
 #if __name__ == "__main__":

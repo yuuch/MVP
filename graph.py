@@ -11,6 +11,7 @@ sys.path.append("MVP/")
 import read_metadata
 import heatmap
 import circular_tree
+import corr_tree
 import annotation
 import rectangle_tree
 import stat_abundance  
@@ -179,28 +180,20 @@ def plot_dim_reduce():
     div = dimension_reduce.dimension_reduce_visualize(reduced,labels,flag_3d)
     result = {0:div}
     return jsonify(result)
-"""
 @bp.route('plot_corr_tree', methods=('GET', 'POST'))
 def plot_corr_tree():
     content = request.get_json(force=True)
     metadata =content['metadata']
     feature_table = content['feature_table']
     obj_col = content['obj_col']
-    tree_file = content['tree_file']
-    file_type = content['file_type']
+    tree_file = content['tree']
     node_num = int(content['node_num'])
 
-    heatmap_instance = heatmap.Heatmap(metadata,feature_table)
-    heatmap_instance.map()
-    labels = heatmap_instance.df[obj_col]
-    feature_table = heatmap_instance.df[heatmap_instance.df_primary_col]
-    tree = circular_tree.read_tree(tree_file,file_type)
-    sub_tree = circular_tree.obtain_subtree(tree,node_num)
-    sub_tree = gini_index_compute.perform(sub_tree, feature_table)
-    div = plot_tree(sub_tree)
+    tree = circular_tree.read_tree(tree_file)#  ,file_type)
+    tree = circular_tree.obtain_subtree(tree,node_num)
+    div = corr_tree.run_this_script(tree,feature_table,metadata,obj_col)
     result = {0:div}
     return jsonify(result)
-"""
 @bp.route('plot_alpha_diversity',methods=('GET', 'POST'))
 def plot_alpha_diversity():
     content = request.get_json(force=True)

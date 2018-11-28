@@ -182,7 +182,11 @@
        <h3>beta diversity</h3>
        <button id='gen_beta_diversity_result' onclick="plot_beta_div()">plot beta div</button>
        <div id='beta_diversity_result' style="width:800px;height: 600px"></div>
-
+       <h2>ecology analysis</h2>
+       <h3>phylogenetic tree</h3>
+        node-number :<input id='ecology_tree_node_num' value=0>
+       <button id='phylo_tree_generator' onclick="plot_phylo_tree()">plot phylo tree</button>
+       <div id='phylo_tree_result' style="width:800px;height: 600px"></div>
 
         <script>
             function send_heatmap(){
@@ -450,6 +454,34 @@
                     }
                 }
                 )
+
+        }
+    </script>
+    <script>
+        function plot_phylo_tree(){
+            var beta_paras = {};
+            beta_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+            beta_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
+            beta_paras.obj_col = document.getElementById('mySelect0').value;
+            beta_paras.node_num = document.getElementById('ecology_tree_node_num').value;
+            beta_paras.tree = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
+            console.log(JSON.stringify(beta_paras))
+                $.ajax({
+                    type: "POST",
+                    url: "/graph/plot_corr_tree",// TODO
+                    data: JSON.stringify(beta_paras),
+                    dataType: "json",
+                    contentType: "applications/json;charset=utf-8",
+                    success: function(data){
+                        $('#phylo_tree_result').html(data[0]);
+                    },
+                    error: function(xhr,status){
+                        alert('sorry, there are problems in plot corr tree')
+                    }
+                }
+                )
+
+
 
         }
     </script>
