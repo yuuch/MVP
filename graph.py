@@ -188,10 +188,11 @@ def plot_corr_tree():
     obj_col = content['obj_col']
     tree_file = content['tree']
     node_num = int(content['node_num'])
+    taxonomy = content['taxonomy']
 
     tree = circular_tree.read_tree(tree_file)#  ,file_type)
     tree = circular_tree.obtain_subtree(tree,node_num)
-    div = corr_tree.run_this_script(tree,feature_table,metadata,obj_col)
+    div = corr_tree.run_this_script(tree,feature_table,metadata,obj_col,taxonomy)
     result = {0:div}
     return jsonify(result)
 @bp.route('plot_alpha_diversity',methods=('GET', 'POST'))

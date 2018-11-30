@@ -465,6 +465,7 @@
             beta_paras.obj_col = document.getElementById('mySelect0').value;
             beta_paras.node_num = document.getElementById('ecology_tree_node_num').value;
             beta_paras.tree = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
+            beta_paras.taxonomy = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
             console.log(JSON.stringify(beta_paras))
                 $.ajax({
                     type: "POST",

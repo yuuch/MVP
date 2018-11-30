@@ -7,6 +7,8 @@ import gini_index_compute
 import scipy.stats
 import pandas as pd
 import stats_test
+import biom
+import numpy as np
 def get_branch_depth(clade):
     if clade.clades:
         clade.child ={}
@@ -62,7 +64,42 @@ def get_y_coordinates(tree):
         xcoords[clade] = clade.depth
     return xcoords
 
-
+def get_phylum_colors(taxonomy_file):
+    colors  = ['rgb(255,0,0)','rgb(255,247,0)','rgb(255,0,247)','rgb(162,255,0)',
+        'rgb(255,111,0)','rgb(111,0,255)','rgb(2,104,23)','rgb(104,2,40)','rgb(2,23,104)',
+        'rgb(192,77,11)','rgb(12,192,162)','rgb(126,3,145)','rgb(17,102,7)','rgb(57,12,179)',
+        'rgb(195,216,8)','rgb(216,8,154)','rgb(6,97,94)','rgb(97,6,36)','rgb(125,218,5)']
+    df = pd.read_csv(taxonomy_file,sep='\t')
+    dict1 = {}
+    for i in range(len(df['Taxon'])):
+        tmp_str = df.loc[i]['Taxon'].split(';')
+        try:
+            key = tmp_str[1]
+        except:
+            key = tmp_str[0]
+        if key in dict1:
+            pass
+        else:
+             dict1[key]=colors[len(dict1)%len(colors)]
+    return dict1
+def get_otu_color(taxonomy_file,phylum_colors,feature_table):
+    otu_lineage = {}
+    taxon = pd.read_csv(taxonomy_file, sep='\t')
+    taxon = taxon.set_index(taxon['Feature ID'])
+    otutable = biom.load_table(feature_table)
+    otutable = otutable.to_dataframe()
+    for ele in otutable.index:
+        lineage = taxon.loc[ele]['Taxon']
+        lineage = lineage.split(';')
+        try:
+            otu_lineage[ele] = lineage[1]
+        except:
+            otu_lineage[ele] = lineage[0]
+    otu_color={}
+    for key in otu_lineage:
+        phylum = otu_lineage[key]
+        otu_color[key] = phylum_colors[phylum] 
+    return otu_color
 
 def get_x_coordinates(tree, dist=1):
     """Get the x coordinates.
@@ -82,6 +119,26 @@ def get_x_coordinates(tree, dist=1):
         ycoords[clade] = clade.corr_value
         #corr(list(clade.sample_dict.values()))
     return ycoords
+def new_get_lines(tree,xcoords,ycoords):
+    traces = []
+    for clade in tree.find_clades(order='level'):
+        x0 = xcoords[clade]
+        y0 = ycoords[clade]
+        if hasattr(clade,'clades'):
+            for ele in clade.clades:
+                x_c = xcoords[ele]
+                y_c = ycoords[ele]
+                trace_p = go.Scatter(
+                    x=(x0,x_c),
+                    y=(y0,y_c),
+                    marker=dict(color='rgb(0,0,0)',opacity=1),
+                    showlegend=False,
+                    mode = 'lines',
+                    hoverinfo = 'none'
+                )
+                traces.append(trace_p)
+    return traces
+
 def get_lines(tree,clade,xcoords,ycoords,traces):
     path = tree.get_path(clade)
     x0 = xcoords[clade]
@@ -93,7 +150,8 @@ def get_lines(tree,clade,xcoords,ycoords,traces):
         trace_p = go.Scatter(# trace parent vertical line
             x = (x0,x_p),
             y = (y0,y_p),
-            marker=dict(color='rgb(25,25,25)'),
+            marker=dict(color='rgb(155,155,155)', opacity=0),
+            showlegend=False,
             mode = 'lines',
             hoverinfo='none'
         )
@@ -105,7 +163,8 @@ def get_lines(tree,clade,xcoords,ycoords,traces):
             trace_p = go.Scatter(x=(x0,x_r),
                                 y=(y0,y_r),
                                  mode='lines',
-                                 marker =dict(color='rgb(25,25,25)'),
+                                 marker =dict(color='rgb(125,125,125)',opacity=1),
+                                 showlegend = False,
                                  hoverinfo='none'
                                 )
             traces.append(trace_p)
@@ -178,9 +237,31 @@ def compute_corr_value(tree, series,method='spearman'):
         else:
             clade.corr_value = corr(otu_list,label_list)
     return tree
-
+def recurse_to_obtain_domain_otu(root_node):
+    if not hasattr(root_node,'child_name'):
+        tmp_sum = {}
+        
+        for ele in root_node.clades:
+            seq, child_name = recurse_to_obtain_domain_otu(ele)
+            tmp_sum[child_name] = seq #.seq
+        root_node.child_name = max(tmp_sum, key=tmp_sum.get)
+        root_node.seq = tmp_sum[root_node.child_name]
+    return root_node.seq,root_node.child_name
+def obtain_domain_otu(tree):
+    """ Obtain the domain child for every node in the tree.
+    (e.g, tree is (A,B)C;  A,B are OTUs, and A possess 8 seq , B 6 seq,
+    we do C.child_name=A )
+    Args:
+        tree: a tree object which has been compute the sample_dict(by 
+        gini_index_compute.py)
+    """
+    for clade in tree.get_terminals():
+        clade.seq =sum(clade.sample_dict.values())
+        clade.child_name = clade.name
+    tmp = recurse_to_obtain_domain_otu(tree.root)
+    return tree
     
-def plot_tree(tree):
+def plot_tree(tree,otu_color, phylum_colors):
     text_dict ={}
     i = 0
     for clade in tree.find_clades(order='level'):
@@ -188,6 +269,8 @@ def plot_tree(tree):
             text_dict[clade]='<br>name:'+clade.name+'<br> clade num:'+str(i)
         else:
             text_dict[clade]='<br>clade num:'+str(i)
+        if clade.seq:
+            text_dict[clade] += '<br>domian OTU seq: '+str(clade.seq)
         i+=1
     #tree = Phylo.read('test_tree.nwk','newick')
     y_coords = get_y_coordinates(tree)
@@ -195,21 +278,40 @@ def plot_tree(tree):
     X = []
     Y = []
     text = []
+    colors = []
     for key in x_coords.keys():
         X.append(x_coords[key])
         Y.append(y_coords[key])
         text.append(text_dict[key])
-    traces = []
-    get_lines(tree,tree.root,x_coords,y_coords,traces=traces)
+        try:
+            colors.append(otu_color[key.name])
+        except:
+            colors.append(otu_color[key.child_name])
+    traces = new_get_lines(tree,x_coords,y_coords)
+    #get_lines(tree,tree.root,x_coords,y_coords,traces=traces)
     trace = go.Scatter(
         x = X,
         y = Y,
         mode = 'markers',
+        marker = dict(color=colors),
+        showlegend = False,
         text= text,
         name=''
     )
     data = [trace]
-    layout = dict(showlegend=False,
+    phlylum_legends = []
+    for ele in phylum_colors:
+        legend_trace = go.Scatter(
+            x=[np.mean(X)],
+            y=[np.mean(Y)],
+            mode = 'markers',
+            marker = dict(opacity=1, color= phylum_colors[ele]),
+            name = ele
+        )
+        phlylum_legends.append(legend_trace)
+    for ele in phlylum_legends:
+        data.append(ele)
+    layout = dict(showlegend=True,
             xaxis=dict(
                 autorange=True,
                  showgrid=False,
@@ -233,13 +335,15 @@ def plot_tree(tree):
     fig =go.Figure(data=data,layout=layout)
     tree_div = plot(fig,output_type='div')
     return tree_div
-def run_this_script(tree, feature_table,metadata,col):
+def run_this_script(tree, feature_table,metadata,col,taxonomy):
     #tree = gini_index_compute.get_tree(tree_file)
     tree = gini_index_compute.perform(tree, feature_table)
     series = obtain_series(metadata,col)
     tree = compute_corr_value(tree,series)
-    #return tree
-    div = plot_tree(tree)
+    tree = obtain_domain_otu(tree)
+    phylum_colors = get_phylum_colors(taxonomy)
+    otu_color = get_otu_color(taxonomy,phylum_colors,feature_table)
+    div = plot_tree(tree,otu_color,phylum_colors)
     return div
 if __name__ == "__main__":
     #tree = Phylo.read('test_tree.nwk','newick')
