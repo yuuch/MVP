@@ -1,6 +1,5 @@
 from Bio import Phylo
-from plotly.offline import download_plotlyjs, init_notebook_mode,  iplot, plot
-init_notebook_mode(connected=True)
+from plotly.offline import download_plotlyjs,  plot
 import plotly.graph_objs as go
 import math
 import gini_index_compute
