@@ -199,8 +199,11 @@ def plot_corr_tree():
 def plot_alpha_diversity():
     content = request.get_json(force=True)
     metadata = content['metadata']
-    alpha_table = content['alpha_table']
+    feature_table = content['feature_table']
     obj_col = content['obj_col']
+    metric = content['metric']
+    tree = content['tree']
+    alpha_table = diversity.alpha_diversity_pre(feature_table,metric,tree)
     tmp_result = diversity.alpha_diversity(
         alpha_table=alpha_table,
         metadata=metadata,
@@ -212,8 +215,11 @@ def plot_alpha_diversity():
 def plot_beta_diversity():
     content = request.get_json(force=True)
     metadata = content['metadata']
-    distance_matrix = content['distance_matrix']
+    feature_table = content['feature_table']
     obj_col = content['obj_col']
+    tree = content['tree']
+    metric = content['metric']
+    distance_matrix =diversity.beta_diversity_pre(feature_table,tree,metric)
     beta_dict = diversity.beta_diversity(
         col=obj_col,
         metadata_file=metadata,

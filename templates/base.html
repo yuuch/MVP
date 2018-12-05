@@ -176,11 +176,43 @@
        <h3>alpha diversity</h3>
         alpha table file name :<input id='alpha_table_file' value='alpha-diversity.tsv'>
        <button id='gen_alpha_diversity_result' onclick="plot_alpha_div()">plot alpha div</button>
+       <select id='alpha_metric'>
+       <option>faith_pd</option>
+       <option>chao1</option>
+       <option>berger_parker_d</option>
+       <option>brillouin_d</option>
+       <option>chao1</option>
+       <option>dominance</option>
+       <option>doubles</option>
+       <option>enspie</option>
+       <option>fisher_alpha</option>
+       <option>gini_index</option>
+       <option>goods_coverage</option>
+       <option>heip_e</option>
+       <option>kempton_taylor_q</option>
+       <option>margalef</option>
+       <option>mcintosh_d</option>
+       <option>mcintosh_e</option>
+       <option>menhinick</option>
+       <option>observed_otus</option>
+       <option>osd</option>
+       <option>pielou_e</option>
+       <option>robbins</option>
+       <option>shannon</option>
+       <option>simpson</option>
+       <option>simpson_e</option>
+       <option>singles</option>
+       <option>strong</option>
+       </select>
        <div id='alpha_diversity_result' style="width:800px;height: 600px"></div>
         distance matrix file name :<input id='distance_matrix_file' value='distance-matrix.tsv'>
        
        <h3>beta diversity</h3>
        <button id='gen_beta_diversity_result' onclick="plot_beta_div()">plot beta div</button>
+       <select id='beta_metric'>
+           <option>weighted_unifrac</option>
+           <option>unweighted_unifrac</option>
+       </select>
        <div id='beta_diversity_result' style="width:800px;height: 600px"></div>
        <h2>ecology analysis</h2>
        <h3>phylogenetic tree</h3>
@@ -413,8 +445,10 @@
         function plot_alpha_div(){
             var alpha_paras = {};
             alpha_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
-            alpha_paras.alpha_table = 'MVP/upload_files/'+document.getElementById('alpha_table_file').value;
+            alpha_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
             alpha_paras.obj_col = document.getElementById('mySelect0').value;
+            alpha_paras.tree = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
+            alpha_paras.metric = document.getElementById('alpha_metric').value;
             console.log(JSON.stringify(alpha_paras))
                 $.ajax({
                     type: "POST",
@@ -436,8 +470,10 @@
     <script>
         function plot_beta_div(){
             var beta_paras = {};
+            beta_paras.metric = document.getElementById('beta_metric').value;
             beta_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
-            beta_paras.distance_matrix = 'MVP/upload_files/'+document.getElementById('distance_matrix_file').value;
+            beta_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+            beta_paras.tree = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
             beta_paras.obj_col = document.getElementById('mySelect0').value;
             console.log(JSON.stringify(beta_paras))
                 $.ajax({

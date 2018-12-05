@@ -3,28 +3,43 @@ import plotly
 from plotly import graph_objs as go
 import sklearn.manifold
 import numpy as np
+import skbio
+import biom
+def alpha_diversity_pre(otu_table,metric,tree=None):
+    df = biom.load_table(otu_table).to_dataframe()
+    result = ''
+    if metric == 'faith_pd':
+        tree = skbio.TreeNode.read(tree)
+        result = skbio.diversity.alpha_diversity(
+            counts=df.T.values,ids=df.columns,
+            metric='faith_pd',tree=tree,
+            otu_ids=df.index)
+    else:
+        result = skbio.diversity.alpha_diversity(counts=df.T.values, ids=df.columns,metric=metric)
+    result = pd.DataFrame(result,columns=['alpha_div'])
+    return result
 def alpha_diversity(alpha_table, metadata,label_col):
     """ split the alpha table into serveral parts according to the metadata.
     Args:
-        alpha_table: an key-value list storing the diversity for every sample
-             (file name ,String)
+        alpha_table: an pandas dataframe which come from the 'alpha_dive
+            rsity_pre' function.
         metadata: record the macro feature of every sample.(File name, String)
     Return :
         a dict contains every label and its samples.
         e.g. dict0 = {'class0':[0,1,2,3,4,5], 'class1': [5, 6, 7, 8, 9]}
     """
     metadata = pd.read_csv(metadata, sep='\t')
-    alpha_table = pd.read_csv(alpha_table, sep='\t')
+    #alpha_table = pd.read_csv(alpha_table, sep='\t')
     try:
         merged = alpha_table.merge(
-            metadata, left_on='Unnamed: 0', right_on='#SampleID')
+            metadata, left_index=True, right_on='#SampleID')
     except:
         print('Wrong column name')
-    tmp_col_name = alpha_table.columns[1]
-    diversity = merged[tmp_col_name]
+    diversity = merged['alpha_div']
     labels = merged[label_col]
     result_dict = {}
-    for i in range(len(labels)):
+    for j in range(len(labels)):
+        i = j+1
         key = labels[i]
         if key  in result_dict:
             result_dict[key].append(diversity[i])
@@ -48,18 +63,30 @@ def alpha_box_plot(result_dict):
     div = plotly.offline.plot(fig,output_type='div')
     return div
 
+def beta_diversity_pre(otu_table, tree, metric):
+    df = biom.load_table(otu_table).to_dataframe()
+    tree = skbio.TreeNode.read(tree)
+    unifrac = skbio.diversity.beta_diversity(
+        counts=df.T.values, ids=df.columns,metric=metric,
+        tree=tree,otu_ids=df.index)
+    distance_matrix = pd.DataFrame(unifrac.data,columns=unifrac.ids,index=unifrac.ids)
+    return distance_matrix
+
 def beta_diversity(distance_matrix, metadata_file, n_components=2, col='BodySite'):
     """ obtain the visualize of the distance matrix.
     Args:
-        distance_matrix:
-            distance between samples.
+        distance_matrixear
+            distance between samples come frome the beta_diversity_pre
+            function
     Return:
         a dict storing the points from the same label.
     """
     metadata = pd.read_csv(metadata_file,sep='\t')
-    df = pd.read_csv(distance_matrix, sep='\t')
-    df = df.set_index(df.columns[0])
+    #df = pd.read_csv(distance_matrix, sep='\t')
+    #df = df.set_index(df.columns[0])
+    df = distance_matrix
     values= df.values
+    # TODO edit Isomap or MDS etc.
     embedding = sklearn.manifold.Isomap(n_components=n_components)
     X = embedding.fit_transform(values)
     cols = ['x0','x1']
