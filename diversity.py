@@ -5,6 +5,7 @@ import sklearn.manifold
 import numpy as np
 import skbio
 import biom
+import scipy
 def alpha_diversity_pre(otu_table,metric,tree=None):
     df = biom.load_table(otu_table).to_dataframe()
     result = ''
@@ -63,19 +64,47 @@ def alpha_box_plot(result_dict):
     div = plotly.offline.plot(fig,output_type='div')
     return div
 
-def beta_diversity_pre(otu_table, tree, metric):
-    df = biom.load_table(otu_table).to_dataframe()
-    tree = skbio.TreeNode.read(tree)
-    unifrac = skbio.diversity.beta_diversity(
-        counts=df.T.values, ids=df.columns,metric=metric,
-        tree=tree,otu_ids=df.index)
-    distance_matrix = pd.DataFrame(unifrac.data,columns=unifrac.ids,index=unifrac.ids)
+def Bray_Curtis_distance(otu_table):
+    """compute pairwise distances of samples.
+    Args:
+        otu_table: otu_table file name (biom format)
+    Return:
+        pairwise distances in DataFrame format
+    """
+    otu_table = biom.load_table(otu_table).to_dataframe()
+    samples = otu_table.columns
+    M = np.zeros(shape=(len(samples),len(samples)))
+    for i in range(len(samples)):
+        for j in range(len(samples)):
+            if i == j:
+                M[i][j]=0
+            elif i>j:
+                M[i][j] = M[j][i]
+            else:
+                M[i][j]= scipy.spatial.distance.braycurtis(otu_table[samples[i]],otu_table[samples[j]])
+    df = pd.DataFrame(M,columns=samples,index=samples)
+    return df  
+    
+def beta_diversity_pre(otu_table, tree=None, metric='weighted_unifrac'):
+    try: # beta divesity related to the phylo tree
+        tree = skbio.TreeNode.read(tree)
+        df = biom.load_table(otu_table).to_dataframe()
+        unifrac = skbio.diversity.beta_diversity(
+            counts=df.T.values, ids=df.columns,metric=metric,
+            tree=tree,otu_ids=df.index)
+        distance_matrix = pd.DataFrame(
+            unifrac.data,
+            columns=unifrac.ids,
+            index=unifrac.ids
+            )
+    except:  # do not need the tree
+        distance_matrix = Bray_Curtis_distance(otu_table)
     return distance_matrix
 
-def beta_diversity(distance_matrix, metadata_file, n_components=2, col='BodySite'):
+def beta_diversity(distance_matrix, metadata_file, n_components=2, col='BodySite',dim_method='Isomap'):
     """ obtain the visualize of the distance matrix.
     Args:
-        distance_matrixear
+        distance_matrixea:(dataframe)
             distance between samples come frome the beta_diversity_pre
             function
     Return:
@@ -87,11 +116,23 @@ def beta_diversity(distance_matrix, metadata_file, n_components=2, col='BodySite
     df = distance_matrix
     values= df.values
     # TODO edit Isomap or MDS etc.
-    embedding = sklearn.manifold.Isomap(n_components=n_components)
-    X = embedding.fit_transform(values)
-    cols = ['x0','x1']
-    if n_components == 3:
-        cols.append('x2')
+    methods = {
+        'PCoA': skbio.stats.ordination.pcoa,
+        'Isomap': sklearn.manifold.Isomap,
+        'MDS': sklearn.manifold.MDS
+    }
+    method = methods[dim_method]
+    try: # manifold method
+        embedding = method(n_components=n_components)
+        X = embedding.fit_transform(values)
+        cols = ['x0','x1']
+        if n_components == 3:
+            cols.append('x2')
+    except: # pcoa method
+        dm =skbio.stats.distance.DistanceMatrix(values,ids=df.columns)
+        pcoa_result = method(dm,'fsvd',n_components)
+        X = pcoa_result.samples.values
+        cols = pcoa_result.samples.columns
     value_df = pd.DataFrame(X,index=df.index, columns=cols)
     merged = value_df.merge(metadata,left_index=True,right_on='#SampleID')
     labels = merged[col]

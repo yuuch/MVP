@@ -219,11 +219,16 @@ def plot_beta_diversity():
     obj_col = content['obj_col']
     tree = content['tree']
     metric = content['metric']
+    dim_method = content['beta_dim_method']
+    n_components = int(content['n_components'])
     distance_matrix =diversity.beta_diversity_pre(feature_table,tree,metric)
+
     beta_dict = diversity.beta_diversity(
         col=obj_col,
         metadata_file=metadata,
-        distance_matrix=distance_matrix
+        distance_matrix=distance_matrix,
+        dim_method=dim_method,
+        n_components=n_components
     )
     div = diversity.plot_beta_scatter(beta_dict)
     result = {0:div}
