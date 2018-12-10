@@ -178,34 +178,35 @@
        <button id='gen_alpha_diversity_result' onclick="plot_alpha_div()">plot alpha div</button>
        <select id='alpha_metric'>
        <option>faith_pd</option>
+       <option>ace</option>
        <option>chao1</option>
-       <option>berger_parker_d</option>
-       <option>brillouin_d</option>
-       <option>chao1</option>
-       <option>dominance</option>
-       <option>doubles</option>
-       <option>enspie</option>
        <option>fisher_alpha</option>
        <option>gini_index</option>
        <option>goods_coverage</option>
-       <option>heip_e</option>
-       <option>kempton_taylor_q</option>
-       <option>margalef</option>
-       <option>mcintosh_d</option>
-       <option>mcintosh_e</option>
-       <option>menhinick</option>
-       <option>observed_otus</option>
-       <option>osd</option>
-       <option>pielou_e</option>
        <option>robbins</option>
        <option>shannon</option>
        <option>simpson</option>
        <option>simpson_e</option>
-       <option>singles</option>
-       <option>strong</option>
        </select>
        <div id='alpha_diversity_result' style="width:800px;height: 600px"></div>
         distance matrix file name :<input id='distance_matrix_file' value='distance-matrix.tsv'>
+        <h2>rarefaction</h2>
+        <button id='gen_rarefaction' onclick="plot_alpha_rarefaction()">plot rarefaction</button> 
+        <select id='rarefaction_metric'>
+            <option>faith_pd</option>
+            <option>ace</option>
+            <option>chao1</option>
+            <option>fisher_alpha</option>
+            <option>gini_index</option>
+            <option>goods_coverage</option>
+            <option>robbins</option>
+            <option>shannon</option>
+            <option>simpson</option>
+            <option>simpson_e</option>
+        </select>
+        max_sequence depth:<input id='max_seq' value=300>
+        step:<input id ='step' value=50>
+        <div id='rarefaction_result' style="width:800px;height: 600px"></div>
        
        <h3>beta diversity</h3>
 
@@ -534,6 +535,35 @@
 
 
         }
+    </script>
+    <script>
+        function plot_alpha_rarefaction(){
+            var rare_paras = {};
+            rare_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+            rare_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
+            rare_paras.obj_col = document.getElementById('mySelect0').value;
+            rare_paras.tree = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
+            rare_paras.metric = document.getElementById('rarefaction_metric').value;
+            rare_paras.step = document.getElementById('step').value;
+            rare_paras.max_seq = document.getElementById('max_seq').value;
+            console.log(JSON.stringify(rare_paras))
+                $.ajax({
+                    type: "POST",
+                    url: "/graph/plot_alpha_rarefaction",// TODO
+                    data: JSON.stringify(rare_paras),
+                    dataType: "json",
+                    contentType: "applications/json;charset=utf-8",
+                    success: function(data){
+                        $('#rarefaction_result').html(data[0]);
+                    },
+                    error: function(xhr,status){
+                        alert('sorry, there are problems in alpha_rarefaction')
+                    }
+                }
+                )
+
+        }
+
     </script>
     </body>
 

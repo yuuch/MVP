@@ -6,8 +6,10 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 import sys
+import re
 #print(sys.path)
 sys.path.append("MVP/")
+import alpha_rarefaction
 import read_metadata
 import heatmap
 import circular_tree
@@ -233,3 +235,17 @@ def plot_beta_diversity():
     div = diversity.plot_beta_scatter(beta_dict)
     result = {0:div}
     return jsonify(result)
+@bp.route('plot_alpha_rarefaction',methods=('GET', 'POST'))
+def plot_alpha_rarefaction():
+    content = request.get_json(force=True)
+    metadata = content['metadata']
+    feature_table = content['feature_table']
+    obj_col = content['obj_col']
+    metric = content['metric']
+    tree = content['tree']
+    max_seq = int(content['max_seq'])
+    step = int(content['step'])
+    div = alpha_rarefaction.plot_alpha_rarefaction(feature_table,metadata,max_seq,step,metric,obj_col,tree)
+    result = {0:div}
+    return jsonify(result)
+

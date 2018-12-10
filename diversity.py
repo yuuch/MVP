@@ -15,6 +15,8 @@ def alpha_diversity_pre(otu_table,metric,tree=None):
             counts=df.T.values,ids=df.columns,
             metric='faith_pd',tree=tree,
             otu_ids=df.index)
+    elif metric == 'ace':
+        result = skbio.diversity.alpha_diversity(counts=df.T.values.astype(int), ids=df.columns,metric=metric)
     else:
         result = skbio.diversity.alpha_diversity(counts=df.T.values, ids=df.columns,metric=metric)
     result = pd.DataFrame(result,columns=['alpha_div'])
