@@ -243,9 +243,10 @@ def plot_alpha_rarefaction():
     obj_col = content['obj_col']
     metric = content['metric']
     tree = content['tree']
+    rarefied_num = int(content['rarefied_num'])
     max_seq = int(content['max_seq'])
     step = int(content['step'])
-    div = alpha_rarefaction.plot_alpha_rarefaction(feature_table,metadata,max_seq,step,metric,obj_col,tree)
-    result = {0:div}
+    box, scatter = alpha_rarefaction.plot_alpha_rarefaction(
+        feature_table,metadata,max_seq,step,metric,obj_col,rarefied_num,tree)
+    result = {0: box, 1: scatter}
     return jsonify(result)
-

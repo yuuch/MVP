@@ -61,10 +61,14 @@ def get_rarefied_names(rarefy_result,rarefied_num=10):
 def alpha_box_plot(box_data):
     x = []
     y = {}
+    scatters = {}
     for feature in box_data:
         tmp = box_data[feature]
         y[feature]=[]
+        scatters[feature]={'x':[],'y':[]}
         for depth in tmp:
+            scatters[feature]['x'].append(int(depth))
+            scatters[feature]['y'].append(np.median(tmp[depth]))
             for ele in tmp[depth]:
                 x.append(depth)
                 y[feature].append(ele)
@@ -77,12 +81,28 @@ def alpha_box_plot(box_data):
         data.append(trace)
     layout = go.Layout(boxmode='group')
     fig = go.Figure(data=data,layout=layout)
-    return plotly.offline.plot(fig,output_type='div')
+    scatter_data = []
+    for feature in scatters:
+        trace = go.Scatter(
+            x=scatters[feature]['x'],
+            y=scatters[feature]['y'],
+            mode = 'markers+lines',
+            name = feature
+        )
+        scatter_data.append(trace)
+    scatter_layout = go.Layout(title='scatter rarefaction')
+    fig_scatter = go.Figure(data=scatter_data, layout=scatter_layout)
+    scatter = plotly.offline.plot(fig_scatter,output_type='div')
+    box = plotly.offline.plot(fig,output_type='div')
+    return box, scatter
 #alpha_box_plot(result)
 
 def get_rarefy_result(otu_table_path, seq_max, step, metric, tree=None,rarefied_num=10):
-    seqs_array = list(range(step,seq_max,step))
-    #print(seqs_array)
+    seqs_array = list(range(1,seq_max,step))
+    if seq_max not in seqs_array:
+        seqs_array.append(seq_max)
+    if metric == 'ace':
+        seqs_array.remove(1)
     otu_table = biom.load_table(otu_table_path).to_dataframe()
     #seqs_alpha_dict = {}
     result = pd.DataFrame([],index=otu_table.columns)
@@ -95,8 +115,8 @@ def get_rarefy_result(otu_table_path, seq_max, step, metric, tree=None,rarefied_
             result = result.merge(rarefied_df,left_index=True,right_index=True)
     return result
 
-def plot_alpha_rarefaction(feature_table,metadata,max_seq,step,metric,meta_column,tree=None):
-    rarefy_result = get_rarefy_result(feature_table,max_seq,step,metric,tree=tree)
+def plot_alpha_rarefaction(feature_table,metadata,max_seq,step,metric,meta_column,rarefied_num=10,tree=None):
+    rarefy_result = get_rarefy_result(feature_table,max_seq,step,metric,tree=tree,rarefied_num=rarefied_num)
     metadata = pd.read_csv(metadata,sep='\t')
     p1 = '.*[Ss][Aa][Mm][Pp][Ll][Ee].*[Ii][Dd].*'
     pattern = re.compile(p1)
@@ -159,9 +179,10 @@ def get_box_plot_data(merged_df, grouped_columns ,meta_column='BodySite'):
         result[sample]={}
         for col in grouped_columns:
             tmp = dfs[sample][grouped_columns[col]]
-            tmp = tmp.values.flatten()
+            #tmp = tmp.values.flatten()
+            means = tmp.mean(axis=1)
            #print(tmp.shape)
-            result[sample][col]=tmp
+            result[sample][col]=means
             #print(tmp)   
         #break
     return result

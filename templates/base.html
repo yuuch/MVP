@@ -206,7 +206,9 @@
         </select>
         max_sequence depth:<input id='max_seq' value=300>
         step:<input id ='step' value=50>
-        <div id='rarefaction_result' style="width:800px;height: 600px"></div>
+        rarefied number <input id='rarefied_num' value=10>
+        <div id='rarefaction_box_result' style="width:800px;height: 600px"></div>
+        <div id='rarefaction_scatter_result' style="width:800px;height: 600px"></div>
        
        <h3>beta diversity</h3>
 
@@ -546,6 +548,7 @@
             rare_paras.metric = document.getElementById('rarefaction_metric').value;
             rare_paras.step = document.getElementById('step').value;
             rare_paras.max_seq = document.getElementById('max_seq').value;
+            rare_paras.rarefied_num = document.getElementById('rarefied_num').value;
             console.log(JSON.stringify(rare_paras))
                 $.ajax({
                     type: "POST",
@@ -554,7 +557,8 @@
                     dataType: "json",
                     contentType: "applications/json;charset=utf-8",
                     success: function(data){
-                        $('#rarefaction_result').html(data[0]);
+                        $('#rarefaction_box_result').html(data[0]);
+                        $('#rarefaction_scatter_result').html(data[1]);
                     },
                     error: function(xhr,status){
                         alert('sorry, there are problems in alpha_rarefaction')
