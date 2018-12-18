@@ -27,6 +27,8 @@ def F_test(arr1, arr2, alpha=0.05):
 
 def t_test(arr1, arr2):
     return stats.ttest_ind(arr1, arr2)[1]
+def mannwhitneyu_test(arr1,arr2):
+    return stats.mannwhitneyu(arr1,arr2)[1]
 
 def correlation(arr1, arr2, corr_type='spearman'):
     """get the correlation betweent two  arrays which possess the same length
@@ -42,7 +44,7 @@ def correlation(arr1, arr2, corr_type='spearman'):
                'pearson':stats.pearsonr
                }
     method = methods[corr_type]
-    return method(arr1,arr2)
+    return method(arr1,arr2)[0]
 def fisher_exact_test(arr11, arr12, arr21, arr22):
     tmp11 = sum(arr11)
     tmp12 = sum(arr12)
@@ -101,4 +103,9 @@ def plot_result_dict(result_dict):
     fig = plotly.graph_objs.Figure(data=data, layout=layout)
     div_str = plotly.offline.plot(fig, output_type='div')
     return div_str   
+def run_this_script(dataframe,label_column,method_name):
+    df1, df2 = choose_two_class(dataframe,label_column)
+    result_dict = perform_test(df1, df2, method_name)
+    return result_dict
+
 

@@ -234,6 +234,26 @@
        <button id='phylo_tree_generator' onclick="plot_phylo_tree()">plot phylo tree</button>
        <div id='phylo_tree_result' style="width:800px;height: 600px"></div>
 
+       <h3>tree and scatters</h3>
+       statistical test methods:
+       <select id = 'stats_test'>
+           <option>t_test</option>
+           <option>F_test</option>
+           <option>mannwhitneyu</option>
+       </select>
+       <br>
+       correlation coefficient methods:
+       <select id="corr_coef">
+           <option>spearman</option>
+           <option>pearson</option>
+       </select>
+       subtree root node ID number <input id='ID_num' value=0>
+       <div id='plot_subtree' style="width:800px;height: 600px"></div>
+       <div id='corr_abu_result' style="width:800px;height: 600px"></div>
+       <div id='corr_GI_result' style="width:800px;height: 600px"></div>
+
+
+
         <script>
             function send_heatmap(){
                 var dict1 = {};
