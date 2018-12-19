@@ -22,6 +22,7 @@ class MvpTree(object):
         self.metadata_set_index()
         self.get_featured_tree()
         self.get_subtree(ID_num)
+        self.get_GI()
 
     def metadata_set_index(self):
         #metadata = self.metadata
@@ -137,6 +138,7 @@ class MvpTree(object):
             col: a Series object  it is key-value pair (SampleID,col_value)
         """
         #split_two_series =
+        label_col = self.metadata[label_col]
         label_col = label_col.sort_index()
         methods = {'F_test':stats_test.F_test,
                't_test':stats_test.t_test,
@@ -149,19 +151,22 @@ class MvpTree(object):
             node.pvalue = method(part1, part2)
     
     def get_corr_coefficient(self,label_col, method_name):
+        label_col = self.metadata[label_col]
+        label_col = label_col.sort_index()
         methods = {'spearman':stats.spearmanr,
                    'pearson':stats.pearsonr
         }
         method = methods[method_name]
         for node in self.subtree.find_clades(order='level'):
             feature = node.sample_series.sort_index()
-            node.corr_coef = method(feature,label_col)[0]
+            values = [float(value) for value in feature.values]
+            node.corr_coef = method(values,label_col)[0]
 
     def get_GI(self):
         """Compute Gini Index for every node .
             GI = 1 - \frac{\sum x_i^2}{(\sum x_i)^2}
         """
-        for clade in self.subtree.find_clades(order='level'):
+        for clade in self.feature_tree.find_clades(order='level'):
             total = sum(clade.sample_series.values)**2
             seperate = sum([ele**2 for ele in clade.sample_series.values])
             try:
@@ -216,6 +221,40 @@ class MvpTree(object):
         return div
     def plot_tree(self):
         div = rectangle_subtree.plot_tree(self.subtree)
+        return div
+    def plot_whole_tree(self):
+        GI_arr = []
+        abu_arr = []
+        errror_clade_count = 0
+        for clade in self.feature_tree.find_clades(order='level'):
+            try:
+                #a = clade.GI
+                #print('GI exist')
+                GI_arr.append(clade.GI)
+                abu_arr.append(clade.abu)
+            except:
+                #print('error when dealing with the whole tree')
+                errror_clade_count += 1
+        print('eerrr clade count %d '%errror_clade_count)
+        names = ['ID num:'+ str(clade.ID_num) for clade in self.feature_tree.\
+            find_clades(order='level')]
+        trace = plotly.graph_objs.Scatter(
+            x = abu_arr,#dict_of_values[para1],
+            y = GI_arr,#dict_of_values[para2],
+            mode = 'markers',
+            text = names
+        )
+        layout = plotly.graph_objs.Layout(
+            title = ' Abudance and GI ' ,
+            xaxis =dict(title='Abudance'),
+            yaxis =dict(title='GI'),
+            hovermode = 'closest'
+        )
+        fig = plotly.graph_objs.Figure(
+            data = [trace],
+            layout = layout
+        )
+        div = plotly.offline.plot(fig,output_type='div')
         return div
         
 

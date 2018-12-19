@@ -235,19 +235,27 @@
        <div id='phylo_tree_result' style="width:800px;height: 600px"></div>
 
        <h3>tree and scatters</h3>
+       For categorical metadata(like "yes" or "no" in some column),we prefer use the statistics test methods.
        statistical test methods:
        <select id = 'stats_test'>
+           <option>None</option>
            <option>t_test</option>
            <option>F_test</option>
            <option>mannwhitneyu</option>
        </select>
        <br>
+       For numerical metadata(like Age),we prefer use the correlation Analysis.
        correlation coefficient methods:
        <select id="corr_coef">
+           <option>None</option>
            <option>spearman</option>
            <option>pearson</option>
        </select>
+       <br>
+
        subtree root node ID number <input id='ID_num' value=0>
+       <button id='ecology_scatter_generator' onclick="plot_ecology_scatter()">plot ecology_scatter</button>
+       <div id='whole_abu_GI_result' style="width:800px;height: 600px"></div>
        <div id='plot_subtree' style="width:800px;height: 600px"></div>
        <div id='corr_abu_result' style="width:800px;height: 600px"></div>
        <div id='corr_GI_result' style="width:800px;height: 600px"></div>
@@ -587,7 +595,37 @@
                 )
 
         }
+    </script>
 
+    <script>
+        function plot_ecology_scatter(){
+            var paras = {};
+            paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+            paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
+            paras.obj_col = document.getElementById('mySelect0').value;
+            paras.tree = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
+            paras.stats_method = document.getElementById('stats_test').value;
+            paras.corr_method = document.getElementById('corr_coef').value;
+            paras.ID_num = document.getElementById('ID_num').value;
+            console.log(JSON.stringify(paras))
+                $.ajax({
+                    type: "POST",
+                    url: "/graph/plot_ecology_scatters",// TODO
+                    data: JSON.stringify(paras),
+                    dataType: "json",
+                    contentType: "applications/json;charset=utf-8",
+                    success: function(data){
+                        $('#plot_subtree').html(data[0]);
+                        $('#corr_GI_result').html(data[1]);
+                        $('#corr_abu_result').html(data[2]);
+                        $('#whole_abu_GI_result').html(data[3]);
+                    },
+                    error: function(xhr,status){
+                        alert('sorry, there are problems in plot ecology scatter')
+                    }
+                }
+                )
+        }
     </script>
     </body>
 

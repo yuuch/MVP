@@ -14,6 +14,7 @@ import read_metadata
 import heatmap
 import circular_tree
 import corr_tree
+import corr_tree_new
 import annotation
 import rectangle_tree
 import stat_abundance  
@@ -197,6 +198,7 @@ def plot_corr_tree():
     div = corr_tree.run_this_script(tree,feature_table,metadata,obj_col,taxonomy)
     result = {0:div}
     return jsonify(result)
+
 @bp.route('plot_alpha_diversity',methods=('GET', 'POST'))
 def plot_alpha_diversity():
     content = request.get_json(force=True)
@@ -213,6 +215,7 @@ def plot_alpha_diversity():
     div = diversity.alpha_box_plot(tmp_result)
     result = {0:div}
     return jsonify(result)
+
 @bp.route('plot_beta_diversity',methods=('GET', 'POST'))
 def plot_beta_diversity():
     content = request.get_json(force=True)
@@ -235,6 +238,7 @@ def plot_beta_diversity():
     div = diversity.plot_beta_scatter(beta_dict)
     result = {0:div}
     return jsonify(result)
+
 @bp.route('plot_alpha_rarefaction',methods=('GET', 'POST'))
 def plot_alpha_rarefaction():
     content = request.get_json(force=True)
@@ -249,4 +253,30 @@ def plot_alpha_rarefaction():
     box, scatter = alpha_rarefaction.plot_alpha_rarefaction(
         feature_table,metadata,max_seq,step,metric,obj_col,rarefied_num,tree)
     result = {0: box, 1: scatter}
+    return jsonify(result)
+
+@bp.route('plot_ecology_scatters',methods=('GET', 'POST'))
+def plot_ecology_scatters():
+    content = request.get_json(force=True)
+    metadata = content['metadata']
+    feature_table = content['feature_table']
+    obj_col = content['obj_col']
+    tree = content['tree']
+    stats_method = content['stats_method']
+    corr_method = content['corr_method']
+    ID_num = int(content['ID_num'])
+    mvp_tree = corr_tree_new.MvpTree(feature_table,tree,metadata,ID_num)
+    scatter_div1 = ''
+    scatter_div2 = ''
+    if stats_method != 'None':
+        mvp_tree.stats_test(obj_col,stats_method)
+        scatter_div1 = mvp_tree.plot_scatter('pvalue', 'GI')
+        scatter_div2 = mvp_tree.plot_scatter('pvalue', 'abundance')
+    if corr_method != 'None':
+        mvp_tree.get_corr_coefficient(obj_col, corr_method)
+        scatter_div1 = mvp_tree.plot_scatter('corr_coef', 'GI')
+        scatter_div2 = mvp_tree.plot_scatter('corr_coef', 'abundance')
+    tree_div = mvp_tree.plot_tree()
+    scatter_whole_tree = mvp_tree.plot_whole_tree()
+    result = {0:tree_div,1:scatter_div1,2:scatter_div2,3:scatter_whole_tree}
     return jsonify(result)
