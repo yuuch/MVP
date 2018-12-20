@@ -134,12 +134,17 @@ def beta_diversity(distance_matrix, metadata_file, n_components=2, col='BodySite
     except: # pcoa method
         dm =skbio.stats.distance.DistanceMatrix(values,ids=df.columns)
         pcoa_result = method(dm,'fsvd',0)
+        print(pcoa_result.eigvals)
+        tmp_sum = sum([eig**2 for eig in pcoa_result.eigvals])
+        #print(pcoa_result.samples.values.shape)
         X = pcoa_result.samples.values[:,0:n_components]
         cols = pcoa_result.samples.columns[0:n_components]
         axis_names = []
+        #print(tmp_sum)
+        print(len(pcoa_result.eigvals))
         for ele in cols:
-            tmp = sum([eig**2 for eig in pcoa_result.eigvals])
-            axis_names.append(ele+' '+str(int(pcoa_result.eigvals[ele]**2/tmp*100))+'%')
+            axis_names.append(ele+' '+str(int(pcoa_result.eigvals[ele]**2/tmp_sum*100))+'%')
+        print(axis_names)
     value_df = pd.DataFrame(X,index=df.index, columns=cols)
     merged = value_df.merge(metadata,left_index=True,right_on='#SampleID')
     labels = merged[col]
@@ -186,11 +191,8 @@ def plot_beta_scatter(result_dict,axis_names):
         )
     except:
         layout = go.Layout(title="beta diversity",
-                           scene = dict(
-
                            xaxis=dict(title=axis_names[0]),
-                           yaxis=dict(title=axis_names[1]),
-                           )
+                           yaxis=dict(title=axis_names[1])
         )
     fig = go.Figure(data=data, layout=layout)
     div = plotly.offline.plot(fig,output_type='div')
