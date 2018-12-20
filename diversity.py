@@ -118,6 +118,7 @@ def beta_diversity(distance_matrix, metadata_file, n_components=2, col='BodySite
     df = distance_matrix
     values= df.values
     # TODO edit Isomap or MDS etc.
+    axis_names = ['axis_0','axis_1','axis_2']
     methods = {
         'PCoA': skbio.stats.ordination.pcoa,
         'Isomap': sklearn.manifold.Isomap,
@@ -132,9 +133,13 @@ def beta_diversity(distance_matrix, metadata_file, n_components=2, col='BodySite
             cols.append('x2')
     except: # pcoa method
         dm =skbio.stats.distance.DistanceMatrix(values,ids=df.columns)
-        pcoa_result = method(dm,'fsvd',n_components)
-        X = pcoa_result.samples.values
-        cols = pcoa_result.samples.columns
+        pcoa_result = method(dm,'fsvd',0)
+        X = pcoa_result.samples.values[:,0:n_components]
+        cols = pcoa_result.samples.columns[0:n_components]
+        axis_names = []
+        for ele in cols:
+            tmp = sum([eig**2 for eig in pcoa_result.eigvals])
+            axis_names.append(ele+' '+str(int(pcoa_result.eigvals[ele]**2/tmp*100))+'%')
     value_df = pd.DataFrame(X,index=df.index, columns=cols)
     merged = value_df.merge(metadata,left_index=True,right_on='#SampleID')
     labels = merged[col]
@@ -147,13 +152,14 @@ def beta_diversity(distance_matrix, metadata_file, n_components=2, col='BodySite
             result_dict[key].append(coordinates.iloc[i])
         else:
             result_dict[key] = [coordinates.iloc[i]]
-    return result_dict
+    return result_dict, axis_names
 
-def plot_beta_scatter(result_dict):
+def plot_beta_scatter(result_dict,axis_names):
     data = []
     for ele in result_dict:
         tmp = np.array(result_dict[ele])
         if len(result_dict[ele][0]) == 2:
+            axis_names = axis_names[0:2]
             trace = go.Scatter(
                 x = tmp[:,0],
                 y = tmp[:,1],
@@ -170,7 +176,17 @@ def plot_beta_scatter(result_dict):
                 name = ele
             )
             data.append(trace)
-    layout = go.Layout(title="beta diversity")
+    try:
+        layout = go.Layout(title="beta diversity",
+                           xaxis=dict(title=axis_names[0]),
+                           yaxis=dict(title=axis_names[1]),
+                           zaxis=dict(title=axis_names[2])
+        )
+    except:
+        layout = go.Layout(title="beta diversity",
+                           xaxis=dict(title=axis_names[0]),
+                           yaxis=dict(title=axis_names[1]),
+        )
     fig = go.Figure(data=data, layout=layout)
     div = plotly.offline.plot(fig,output_type='div')
     return div

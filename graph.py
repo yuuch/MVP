@@ -228,14 +228,14 @@ def plot_beta_diversity():
     n_components = int(content['n_components'])
     distance_matrix =diversity.beta_diversity_pre(feature_table,tree,metric)
 
-    beta_dict = diversity.beta_diversity(
+    beta_dict, axis_names = diversity.beta_diversity(
         col=obj_col,
         metadata_file=metadata,
         distance_matrix=distance_matrix,
         dim_method=dim_method,
         n_components=n_components
     )
-    div = diversity.plot_beta_scatter(beta_dict)
+    div = diversity.plot_beta_scatter(beta_dict,axis_names)
     result = {0:div}
     return jsonify(result)
 
