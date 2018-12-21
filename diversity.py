@@ -178,14 +178,19 @@ def plot_beta_scatter(result_dict,axis_names):
             data.append(trace)
     try:
         layout = go.Layout(title="beta diversity",
+                           scene=dict(
                            xaxis=dict(title=axis_names[0]),
                            yaxis=dict(title=axis_names[1]),
-                           zaxis=dict(title=axis_names[2])
+                           zaxis=dict(title=axis_names[2]),
+                           )
         )
     except:
         layout = go.Layout(title="beta diversity",
+                           scene = dict(
+
                            xaxis=dict(title=axis_names[0]),
                            yaxis=dict(title=axis_names[1]),
+                           )
         )
     fig = go.Figure(data=data, layout=layout)
     div = plotly.offline.plot(fig,output_type='div')
