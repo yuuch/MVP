@@ -1,0 +1,78 @@
+section{
+    width:100%;
+}
+div#anno_result{
+    width:50%;
+    background: red;
+    float:left;
+}
+div#tree_result{
+    width:50%;
+    background: green;
+    float:left;
+}
+
+section{
+    width:100%;
+}
+div#heatmap_result{
+    width:50%;
+    background:yellow;
+    float:left;
+}
+div#alpha_diversity_result{
+    width:25%;
+    background:cyan;
+    float:left;
+}
+div#beta_diversity_result{
+    width:25%;
+    background:plum;
+    float:left;
+}
+
+section{
+    width:100%;
+}
+div#plot_subtree{
+    width:33%;
+    background:yellow;
+    float:left;
+}
+div#sub_tree_anno{
+    width:33%;
+    background:powderblue;
+    float:left;
+}
+div#whole_abu_GI_result{
+    width:33%;
+    background:yellow;
+    float:left;
+}
+
+section{
+    width:100%;
+}
+div#corr_abu_result{
+    width:50%;
+    background:yellowgreen;
+    float:left;
+}
+div#corr_GI_result{
+    width:50%;
+    background:yellowgreen;
+    float:left;
+}
+section{
+    width:100%;
+}
+div#stat_test_result{
+    width:50%;
+    background:grey;
+    float:left;
+}
+div#osea_result{
+    width:50%;
+    background:pink;
+    float:left;
+}

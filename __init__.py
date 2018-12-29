@@ -59,5 +59,6 @@ def create_app(test_config=None):
 
 
     from . import graph
+    app.static_file='static'
     app.register_blueprint(graph.bp)
     return app

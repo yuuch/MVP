@@ -25,7 +25,8 @@ import dimension_reduce
 import diversity
 #import corr_tree
 #from MVP.db import get_db
-
+#url_for('static', filename='base.css')
+#url_for('static', filename='base.js')
 bp = Blueprint('graph', __name__, url_prefix='/graph')
 @bp.route('/graph',methods=('GET','POST'))
 def graph():
