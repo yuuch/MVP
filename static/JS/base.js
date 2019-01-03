@@ -71,7 +71,7 @@ function read_metadata() {
                 tree_paras.tree_file = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
                 tree_paras.node_num = document.getElementById('node_num').value;
                 tree_paras.file_type = document.getElementById('tree_format').value;
-                tree_paras.feature_table_file = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+                tree_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
                 tree_paras.taxonomy_file = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
                 tree_paras.tree_type = document.getElementById('tree_type').value;
                 tree_paras.feature0 = document.getElementById('mySelect0').value;
@@ -103,7 +103,7 @@ function read_metadata() {
             }
         function plot_abun(){
             var abun_paras = {};
-            abun_paras.feature_table_file = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+            abun_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
             abun_paras.taxonomy_file = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
             abun_paras.feature0 = document.getElementById('mySelect0').value;
             abun_paras.feature1 = document.getElementById('mySelect1').value;
@@ -137,7 +137,7 @@ function read_metadata() {
         function plot_stats_result(){
             var stats_paras = {};
             stats_paras.stats_method = document.getElementById('statistics methods').value;
-            stats_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+            stats_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
             stats_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
             stats_paras.label_col = document.getElementById('mySelect0').value;
             console.log(JSON.stringify(stats_paras))
@@ -161,7 +161,7 @@ function read_metadata() {
             var osea_paras = {};
             osea_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
             osea_paras.taxonomy = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
-            osea_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+            osea_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
             osea_paras.obj_col = document.getElementById('mySelect0').value;
             osea_paras.set_level = document.getElementById('set_level').value;
             console.log(JSON.stringify(osea_paras))
@@ -183,7 +183,7 @@ function read_metadata() {
         function plot_dim_reduce_result(){
             var dim_paras = {};
             dim_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
-            dim_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+            dim_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
             dim_paras.obj_col = document.getElementById('mySelect0').value;
             dim_paras.flag_3d = document.getElementById('flag_3d').value;
             dim_paras.n_component = document.getElementById('n_component').value;
@@ -208,7 +208,7 @@ function read_metadata() {
         function plot_alpha_div(){
             var alpha_paras = {};
             alpha_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
-            alpha_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+            alpha_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
             alpha_paras.obj_col = document.getElementById('mySelect0').value;
             alpha_paras.tree = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
             alpha_paras.metric = document.getElementById('alpha_metric').value;
@@ -233,7 +233,7 @@ function read_metadata() {
             var beta_paras = {};
             beta_paras.metric = document.getElementById('beta_metric').value;
             beta_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
-            beta_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table_file').value;
+            beta_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
             beta_paras.tree = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
             beta_paras.obj_col = document.getElementById('mySelect0').value;
             beta_paras.beta_dim_method = document.getElementById('beta_dim_method').value;
@@ -320,6 +320,7 @@ function plot_ecology_scatter(){
             paras.stats_method = document.getElementById('stats_test').value;
             paras.corr_method = document.getElementById('corr_coef').value;
             paras.ID_num = document.getElementById('ID_num').value;
+            paras.taxonomy = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
             console.log(JSON.stringify(paras))
                 $.ajax({
                     type: "POST",
@@ -332,6 +333,7 @@ function plot_ecology_scatter(){
                         $('#corr_GI_result').html(data[1]);
                         $('#corr_abu_result').html(data[2]);
                         $('#whole_abu_GI_result').html(data[3]);
+                        $('#sub_tree_anno').html(data[4]);
                     },
                     error: function(xhr,status){
                         alert('sorry, there are problems in plot ecology scatter')

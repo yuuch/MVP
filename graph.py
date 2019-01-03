@@ -77,7 +77,7 @@ def plot_tree():
     tree_type = content['tree_type']
     file_type = content['file_type']
     node_num = int(content['node_num'])
-    feature_table = content['feature_table_file']
+    feature_table = content['feature_table']
     taxo_file = content['taxonomy_file']
     tree = circular_tree.read_tree(tree_file,file_type)
     # plot_tree
@@ -266,6 +266,7 @@ def plot_ecology_scatters():
     stats_method = content['stats_method']
     corr_method = content['corr_method']
     ID_num = int(content['ID_num'])
+    taxo_file = content['taxonomy']
     mvp_tree = corr_tree_new.MvpTree(feature_table,tree,metadata,ID_num)
     scatter_div1 = ''
     scatter_div2 = ''
@@ -277,7 +278,10 @@ def plot_ecology_scatters():
         mvp_tree.get_corr_coefficient(obj_col, corr_method)
         scatter_div1 = mvp_tree.plot_scatter('corr_coef', 'GI')
         scatter_div2 = mvp_tree.plot_scatter('corr_coef', 'abundance')
+    cols = [ele.name for ele in mvp_tree.subtree.get_terminals()]
+    ann = annotation.Annotation(cols,feature_table,taxo_file)
+    ann_div = ann.plot_annotation()
     tree_div = mvp_tree.plot_tree()
     scatter_whole_tree = mvp_tree.plot_whole_tree()
-    result = {0:tree_div,1:scatter_div1,2:scatter_div2,3:scatter_whole_tree}
+    result = {0:tree_div,1:scatter_div1,2:scatter_div2,3:scatter_whole_tree,4:ann_div}
     return jsonify(result)

@@ -19,22 +19,124 @@
       <input type=submit value=Upload >
     </form>
     </div>
-    <h2>Annotation</h2>
+    feature table file name :<input id='feature_table' value='feature-table.biom'>(e.g.: "experiment1.otutable" without quote)
+    sample metadata file name:<input id='metadata' value='demo_metadata.tsv'>
+    <br>
+    Taxon:<input id='taxonomy_file' value='taxonomy.tsv'>
+    <br>
+    tree_file_name:<input id='tree_file_name' value='tree.nwk'>
+    <br>
+    tree_format:<select id='tree_format'>
+                 <option>newick</option>
+                <option>phyloxml</option>
+            </select>
+    <h2>Summary</h2>
+    <button id='read_metadata'onclick="read_metadata()">load metadata</button> 
+    Choose the feature you are interested in :
+    <select id="mySelect0" size=1>
+    <option>None</option>
+    </select>
 
     <section>
+            <div id='plot_tree_div'>
+                    input the node num of the subtree root:<input id='node_num' value=0>
+                    <select id='tree_type'>
+                        <option>rectangle_tree</option>
+                        <option>circular_tree</option>
+                    </select>
+                    <button id= 'plot_tree' onclick="plot_tree()">plot tree</button>
+            </div>
         <div id='tree_result'>TREE PLOT</div>
         <div id='anno_result'>anno result will be plotted here.</div>
+        <div id='beta_div_keys'>
+                beta
+                    <select id='beta_metric'>
+    
+                            <option>weighted_unifrac</option>
+                            <option>unweighted_unifrac</option>
+                            <option>Bray_Curtis</option>
+                        </select>
+                 
+                        <select id='beta_dim_method'>
+                            <option>PCoA</option>
+                            <option>Isomap</option>
+                            <option>MDS</option>
+                        </select>
+                 
+                        <select id='beta_n_components'>
+                            <option>2</option>
+                            <option>3</option>
+                        </select>
+                 
+                        <button id='gen_beta_diversity_result' onclick="plot_beta_div()">plot beta div</button>
+            </div>
+            <div id='beta_diversity_result'>beta diver</div>
     </section>
     <section>
-        <div id='heatmap_result'>heatmap</div>
+            <div id='heatmap_result'>heatmap</div>
+        <div id='alpha_div_keys'>
+               alpha
+                <select id='alpha_metric'>
+                <option>faith_pd</option>
+                <option>ace</option>
+                <option>chao1</option>
+                <option>fisher_alpha</option>
+                <option>gini_index</option>
+                <option>goods_coverage</option>
+                <option>robbins</option>
+                <option>shannon</option>
+                <option>simpson</option>
+                <option>simpson_e</option>
+                </select>
+                <button id='gen_alpha_diversity_result' onclick="plot_alpha_div()">plot alpha div</button>
+        </div>
         <div id='alpha_diversity_result'>alpha diver</div>
-        <div id='beta_diversity_result'>beta diver</div>
+        <div id='rarefaction_div_keys'>
+                <button id='gen_rarefaction' onclick="plot_alpha_rarefaction()">plot rarefaction</button> 
+                <select id='rarefaction_metric'>
+                    <option>faith_pd</option>
+                    <option>ace</option>
+                    <option>chao1</option>
+                    <option>fisher_alpha</option>
+                    <option>gini_index</option>
+                    <option>goods_coverage</option>
+                    <option>robbins</option>
+                    <option>shannon</option>
+                    <option>simpson</option>
+                    <option>simpson_e</option>
+                </select>
+                <br>
+                max_sequence depth:<input id='max_seq' value=300><br>
+                step:<input id ='step' value=50><br>
+                rarefied number <input id='rarefied_num' value=10><br>
+        </div>
+        <div id='rarefaction_scatter_result'>rarefaction</div>
     </section>
     <br>
     we want to assert something to here.
     <br>
     <section>
-       <div id='plot_subtree' ">subtree</div>
+       For categorical metadata(like "yes" or "no" in some column),we prefer use the statistics test methods.
+       statistical test methods:
+            <select id = 'stats_test'>
+                    <option>None</option>
+                    <option>t_test</option>
+                    <option>F_test</option>
+                    <option>mannwhitneyu</option>
+                </select>
+                <br>
+                For numerical metadata(like Age),we prefer use the correlation Analysis.
+                correlation coefficient methods:
+                <select id="corr_coef">
+                    <option>None</option>
+                    <option>spearman</option>
+                    <option>pearson</option>
+                </select>
+                <br>
+         
+                subtree root node ID number <input id='ID_num' value=0>
+                <button id='ecology_scatter_generator' onclick="plot_ecology_scatter()">plot ecology_scatter</button>
+       <div id='plot_subtree' >subtree</div>
        <div id='sub_tree_anno'>subtree anno</div>
        <div id='whole_abu_GI_result'>whole treee abu and gi</div>
     </section>
@@ -48,51 +150,32 @@
     <br>
 
     <section>
+            <select id="statistics methods">
+                    <option>t_test</option>
+                    <option>F_test</option>
+                    <option>some-other-test-methods</option>
+                    <option>TO BE CONTINUED..</option>
+                </select>
+            </form>
+            statistical result:
+            <button id='gen_result' onclick="plot_stats_result()">generate result</button>
+           <br> 
         <div id='stat_test_result'>stat_test_result</div>
+        <select id='set_level'>
+                <option>Kingdom</option>
+                <option>Phylum</option>
+                <option>Class</option>
+                <option>Order</option>
+                <option>Family</option>
+                <option>Genus</option>
+                <option>Species</option>
+            </select>
+            <button id='gen_osea_result' onclick="plot_osea_result()">generate result</button>
         <div id='osea_result'>osea_result</div>
     </section> 
     <br>
 
-    <div>
-        Taxon:<input id='taxonomy_file' value='taxonomy.tsv'>
-        <br>
-        Feature_table:<input id='feature_table_file' value='feature-table.biom'>
-        <br>
-        <br>
-    </div>
             
-        <h2>Tree</h2>
-        <div>
-            <p>you can upload sequences to generate a phylogenetic tree,or upload newick tree to 
-                draw a tree
-            </p>
-        </div>
-        <div id='div3'>
-            tree_file_name:<input id='tree_file_name' value='tree.nwk'>
-            tree_format:<select id='tree_format'>
-                <option>newick</option>
-                <option>phyloxml</option>
-            </select>
-            <br><br>
-
-        </div>
-        <br>
-        input the node num of the subtree root:<input id='node_num' value=0>
-        <select id='tree_type'>
-            <option>rectangle_tree</option>
-            <option>circular_tree</option>
-        </select>
-        <button id= 'plot_tree' onclick="plot_tree()">plot tree</button>
-        <div>
-            <h2>Matrix</h2>
-
-        feature table file name :<input id='feature_table' value='feature-table.biom'>(e.g.: "experiment1.otutable" without quote)
-        </div>
-        <br>
-        <div>
-             sample metadata file name:<input id='metadata' value='demo_metadata.tsv'>
-        </div>
-        <br>
         <br>
         <h3>filt matrix</h3>
         Select number of features to be analysis default:<input id='Num_features' value=1>
@@ -116,7 +199,6 @@
             }
         </script> 
         <br>
-         <button id='read_metadata'onclick="read_metadata()">read metadata</button> 
         <br>
         <h2>Abundance</h2>
         <div>abundance type:
@@ -135,9 +217,6 @@
         <button id='plot_abun_result' onclick="plot_abun()">plot abundance</button>
         <div id='abun_result'style="width:800px;height:600px;"></div>
         Feature to be analysied:
-            <select id="mySelect0" size=1>
-                <option>None</option>
-            </select>
             <select id="mySelect1" size=1 type="hidden">
             </select>
             <select id="mySelect2" size=1 type="hidden">
@@ -171,16 +250,7 @@
         <h2>OTU Set Enrichment Analysis(OSEA)</h2>
         choose the rank list.<br>
         choose the lineage level(e.g. phylum ,genus,specied.etc)
-        <select id='set_level'>
-            <option>Kingdom</option>
-            <option>Phylum</option>
-            <option>Class</option>
-            <option>Order</option>
-            <option>Family</option>
-            <option>Genus</option>
-            <option>Species</option>
-        </select>
-        <button id='gen_osea_result' onclick="plot_osea_result()">generate result</button>
+       
         
        <h2>Dimension Reduction</h2>
        n_component(which deicde the number of dimensions after dimension reduction):
@@ -203,61 +273,14 @@
 
        <h2>Diversity</h2>
        <h3>alpha diversity</h3>
-        alpha table file name :<input id='alpha_table_file' value='alpha-diversity.tsv'>
-       <button id='gen_alpha_diversity_result' onclick="plot_alpha_div()">plot alpha div</button>
-       <select id='alpha_metric'>
-       <option>faith_pd</option>
-       <option>ace</option>
-       <option>chao1</option>
-       <option>fisher_alpha</option>
-       <option>gini_index</option>
-       <option>goods_coverage</option>
-       <option>robbins</option>
-       <option>shannon</option>
-       <option>simpson</option>
-       <option>simpson_e</option>
-       </select>
-        distance matrix file name :<input id='distance_matrix_file' value='distance-matrix.tsv'>
         <h2>rarefaction</h2>
-        <button id='gen_rarefaction' onclick="plot_alpha_rarefaction()">plot rarefaction</button> 
-        <select id='rarefaction_metric'>
-            <option>faith_pd</option>
-            <option>ace</option>
-            <option>chao1</option>
-            <option>fisher_alpha</option>
-            <option>gini_index</option>
-            <option>goods_coverage</option>
-            <option>robbins</option>
-            <option>shannon</option>
-            <option>simpson</option>
-            <option>simpson_e</option>
-        </select>
-        max_sequence depth:<input id='max_seq' value=300>
-        step:<input id ='step' value=50>
-        rarefied number <input id='rarefied_num' value=10>
+        
         <div id='rarefaction_box_result' style="width:800px;height: 600px"></div>
-        <div id='rarefaction_scatter_result' style="width:800px;height: 600px"></div>
+        
        
        <h3>beta diversity</h3>
 
-       <select id='beta_metric'>
-           <option>weighted_unifrac</option>
-           <option>unweighted_unifrac</option>
-           <option>Bray_Curtis</option>
-       </select>
-
-       <select id='beta_dim_method'>
-           <option>PCoA</option>
-           <option>Isomap</option>
-           <option>MDS</option>
-       </select>
-
-       <select id='beta_n_components'>
-           <option>2</option>
-           <option>3</option>
-       </select>
-
-       <button id='gen_beta_diversity_result' onclick="plot_beta_div()">plot beta div</button>
+       
        <h2>ecology analysis</h2>
        <h3>phylogenetic tree</h3>
         node-number :<input id='ecology_tree_node_num' value=0>
@@ -265,26 +288,7 @@
        <div id='phylo_tree_result' style="width:800px;height: 600px"></div>
 
        <h3>tree and scatters</h3>
-       For categorical metadata(like "yes" or "no" in some column),we prefer use the statistics test methods.
-       statistical test methods:
-       <select id = 'stats_test'>
-           <option>None</option>
-           <option>t_test</option>
-           <option>F_test</option>
-           <option>mannwhitneyu</option>
-       </select>
-       <br>
-       For numerical metadata(like Age),we prefer use the correlation Analysis.
-       correlation coefficient methods:
-       <select id="corr_coef">
-           <option>None</option>
-           <option>spearman</option>
-           <option>pearson</option>
-       </select>
-       <br>
-
-       subtree root node ID number <input id='ID_num' value=0>
-       <button id='ecology_scatter_generator' onclick="plot_ecology_scatter()">plot ecology_scatter</button>
+       
     </body>
 
 </html>

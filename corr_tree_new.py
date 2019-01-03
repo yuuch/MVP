@@ -1,6 +1,7 @@
 from Bio import Phylo
 import biom
 import copy 
+import math
 import numpy as np 
 import pandas as pd
 import plotly
@@ -148,7 +149,8 @@ class MvpTree(object):
         for node in self.subtree.find_clades(order='level'):
             feature = node.sample_series.sort_index()
             part1 ,part2 = self.split_features_value(feature,label_col)
-            node.pvalue = method(part1, part2)
+            pvalue = method(part1, part2)
+            node.pvalue = -math.log(pvalue)
     
     def get_corr_coefficient(self,label_col, method_name):
         label_col = self.metadata[label_col]
