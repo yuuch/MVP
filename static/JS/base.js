@@ -341,3 +341,10 @@ function plot_ecology_scatter(){
                 }
                 )
         }
+function jump_html(){
+    $.ajax({
+        type: "POST",
+        url: "/graph/jump_html"
+    }
+    )
+}

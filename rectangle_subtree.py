@@ -145,12 +145,30 @@ def plot_tree(tree):
     X = []
     Y = []
     text = []
+    colors = []
     for key in x_coords.keys():
         X.append(x_coords[key])
         Y.append(y_coords[key])
         text.append(text_dict[key])
+        try:
+            colors.append(key.plot_color)
+        except:
+            colors.append('rgb(0,0,0)')
+            print('rectangle_subtree:line 157')
     traces = []
     get_lines(tree,tree.root,x_coords,y_coords,traces=traces)
+    for i in range(len(X)):
+        trace = go.Scatter(
+            x =[X[i]],
+            y=[Y[i]],
+            mode = 'markers',
+            marker=dict(color=colors[i]),
+            text = [text[i]],
+            showlegend = False,
+            name = ''
+        )
+        traces.append(trace)
+    """
     trace = go.Scatter(
         x = X,
         y = Y,
@@ -158,7 +176,8 @@ def plot_tree(tree):
         text= text,
         name=''
     )
-    data = [trace]
+    """
+    data = traces
     layout = dict(showlegend=False,
             xaxis=dict(
                 autorange=True,
@@ -178,8 +197,6 @@ def plot_tree(tree):
                 ),
             hovermode = 'closest'
     )
-    for ele in traces:
-        data.append(ele)
     fig =go.Figure(data=data,layout=layout)
     tree_div = plot(fig,output_type='div')
     return tree_div

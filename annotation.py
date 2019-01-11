@@ -27,8 +27,8 @@ class Annotation(object):
                 continue
             else:
                 feature_count = sum(list(self.feature_table.loc[feature_name]))
-            unassigned = ['Unassigned','p__unassigned','c__unassigned','o__unassigned','f__unassigned'
-                         ,'g__unassigned','s__unassigned']
+            unassigned = ['Unassigned',' p__unassigned',' c__unassigned',' o__unassigned',' f__unassigned'
+                         ,' g__unassigned',' s__unassigned']
             if feature_count == 0:
                 continue
             taxo_of_feature = self.taxonomy.loc[feature_name]['Taxon'].split(';')
@@ -63,12 +63,12 @@ class Annotation(object):
         colors = ['rgb(255,0,0)','rgb(255,247,0)','rgb(255,0,247)','rgb(162,255,0)',
         'rgb(255,111,0)','rgb(111,0,255)','rgb(2,104,23)','rgb(104,2,40)','rgb(2,23,104)',
         'rgb(192,77,11)','rgb(12,192,162)','rgb(126,3,145)','rgb(17,102,7)','rgb(57,12,179)',
-        'rgb(195,216,8)','rgb(216,8,154)','rgb(6,97,94)','rgb(97,6,36)','rgb(125,218,5)']
+        'rgb(195,216,8)','rgb(216,8,154)','rgb(6,97,94)','rgb(97,6,36)','rgb(125,218,5)',
+        'rgb(255,0,80)']
         self.colors = colors
     def plot_annotation(self):
         mapped_level={'level0':'Kingdom','level1':'Phylum','level2':'Class','level3':'Order',
                  'level4':'Family','level5':'Genus','level6':'Species','level7':'OTU'}
-        
         data = []
         level_appeard_name = {}
         color_index = 0
@@ -120,11 +120,11 @@ class Annotation(object):
                             to_be_del.append(i)
                             otu_data[i].x=tuple((data[-1][i].x[0]+otu_data[i].x[0],))
                             data[-1][i].x=tuple((0,))
-                
             else:
                 pass
             data.append(otu_data)
         #for i
+        self.mapped_phylum_colors = level_appeard_name['level1']
         result_data = []
         for i in range(7):
             trace = go.Bar(y=[mapped_level['level'+str(6-i)]],

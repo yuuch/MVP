@@ -13,7 +13,8 @@ import stats_test
 class MvpTree(object):
     """ a class merged the metadata, otutable and phylogenetic tree.
     """
-    def __init__(self, feature_table_path, tree_path, metadata_path, ID_num=0):
+    def __init__(self, feature_table_path, tree_path, metadata_path, \
+        taxonomy_path=None, ID_num=0):
         self.feature_table = biom.load_table(feature_table_path)\
             .to_dataframe()
         self.tree = Phylo.read(tree_path, "newick")
@@ -22,8 +23,58 @@ class MvpTree(object):
         self.get_normalize_feature_table()
         self.metadata_set_index()
         self.get_featured_tree()
+        if taxonomy_path:
+            self.get_taxonomy_info(taxonomy_path)
+            self.get_domain_otu()
         self.get_subtree(ID_num)
         self.get_GI()
+
+
+    def get_taxonomy_info(self,taxonomy_path):
+        """ get taxonomy infomation for every otu."""
+        Taxon = 'Taxon'
+        p1 = '.*[Tt][Aa][Xx][Oo].*'
+        pattern = re.compile(p1)
+        feature_id = 'Feature ID'
+        p2 = '.*[Ii][Dd].*'
+        pattern2 = re.compile(p2)
+        
+        try:
+            taxonomy_df = pd.read_csv(taxonomy_path, sep= '\t')
+            print('valid taxonomy file')
+        except:
+            print('unvalid  taxonomy path')
+        for ele in taxonomy_df.columns:
+            if len(pattern.findall(ele)) >0:
+                if pattern.findall(ele)[0]>3 :
+                    Taxon = ele
+            else:
+                pass
+            break
+        for ele in taxonomy_df.columns:
+            if len(pattern2.findall(ele)) > 0:
+                if len(pattern2.findall(ele)[0])>3 :
+                    feature_id = ele
+            else:
+                pass
+            break
+        taxonomy_df = taxonomy_df.set_index(feature_id)
+        self.lineage = taxonomy_df[Taxon]
+        
+    def get_colors(self, colors, color_index):
+        for clade in self.feature_tree.find_clades(order='level'):
+            try:
+                lineages = self.lineage[clade.domain_otu]
+                #print(lineages)
+                lineages = lineages.split(';')
+                phylumn_name = lineages[1] #phylumn name
+                #print (phylumn_name)
+                temp_index = color_index[phylumn_name]
+                #print(temp_index)
+                clade.plot_color = colors[temp_index]
+                #print(clade.plot_color)
+            except:
+                clade.plot_color = 'rgb(0,0,0)'
 
     def metadata_set_index(self):
         #metadata = self.metadata
@@ -72,8 +123,43 @@ class MvpTree(object):
                 a = node.sample_series
                 #print(node.name +' is a leaf')
             except:
-                print('please init the tree leaves by otu table.')
+                print('please initialize the tree leaves by otu table.')
         return node
+    def get_node_domain_otu(self,node):
+        """recurse to get the domain otu of every node from the root to leaves."""
+        if node.clades:
+            if node.clades[0].abu < node.clades[1].abu:
+                node.domain_otu = self.get_node_domain_otu(node.clades[1]).domain_otu
+                self.get_node_domain_otu(node.clades[0])
+            else:
+                node.domain_otu = self.get_node_domain_otu(node.clades[0]).domain_otu
+                self.get_node_domain_otu(node.clades[1])
+        return node
+        
+                        
+
+    def get_domain_otu(self):
+        """ for non  terminal node, we need to get the domain otu."""
+        for leaf in self.feature_tree.get_terminals():
+            leaf.domain_otu = leaf.name
+        self.feature_tree = self.get_node_domain_otu(self.feature_tree)
+        #print(temp)
+
+        """
+        for clade in self.feature_tree.find_clades(order='level'):
+            if not clade.clades:
+                continue
+            if clade.clades[0].abu < clade.clades[1].abu:
+                clade.domain_otu = clade.clades[1].name
+            else:
+                clade.domain_otu = clade.clades[0].name
+        print('self feature tree root abu')
+        print(self.feature_tree.domain_otu)
+        """
+
+
+    
+
 
     def get_featured_tree(self):
         """ For every node in the tree can be seen as a feature of the data
@@ -98,6 +184,7 @@ class MvpTree(object):
         for clade in self.feature_tree.find_clades(order='level'):
             clade.ID_num = i 
             clade.abu = np.mean(clade.sample_series.values)
+            #clade.domain_otu = clade.sample_series.idxmax()
             i += 1
 
     def get_subtree(self,ID_num=0):
@@ -133,12 +220,13 @@ class MvpTree(object):
                 part2.append(feature[i])
         return part1,part2
 
-    def stats_test(self, label_col, method_name):
+    def stats_test(self, label_col, method_name,ID_num):
         """traverse the tree and compute the p value for every node(feature).
         Args:
             col: a Series object  it is key-value pair (SampleID,col_value)
         """
         #split_two_series =
+        self.get_subtree(ID_num)
         label_col = self.metadata[label_col]
         label_col = label_col.sort_index()
         methods = {'F_test':stats_test.F_test,
@@ -152,7 +240,8 @@ class MvpTree(object):
             pvalue = method(part1, part2)
             node.pvalue = -math.log(pvalue)
     
-    def get_corr_coefficient(self,label_col, method_name):
+    def get_corr_coefficient(self,label_col, method_name,ID_num):
+        self.get_subtree(ID_num)
         label_col = self.metadata[label_col]
         label_col = label_col.sort_index()
         methods = {'spearman':stats.spearmanr,
@@ -175,9 +264,10 @@ class MvpTree(object):
                 clade.GI = 1-(seperate/total)
             except:
                 print('error occured when compute Gini Index')
-    def plot_scatter(self,para1,para2):
+    def plot_scatter(self,para1,para2,ID_num=0):
         """ para1 can be abundance or GI or pvalue or corr_coef
         """
+        self.get_subtree(ID_num)
         dict_of_values = {
             'GI':[],
             'pvalue':[],
@@ -188,27 +278,47 @@ class MvpTree(object):
             try:
                 dict_of_values['GI'].append(clade.GI)
             except:
-                print('no GI in the clade')
+                pass
+                #print('no GI in the clade')
             try:
                 dict_of_values['abundance'].append(clade.abu)
             except:
-                print('no abu in the clade')
+                pass
+                #print('no abu in the clade')
             try:
                 dict_of_values['pvalue'].append(clade.pvalue)
             except:
-                print('no pvalue in the clade')
+                pass
+                #print('no pvalue in the clade')
             try:
                 dict_of_values['corr_coef'].append(clade.corr_coef)
             except:
-                print('no corr_coef in the clade')
+                pass
+                #print('no corr_coef in the clade')
         names = ['ID num:'+ str(clade.ID_num) for clade in self.subtree.\
             find_clades(order='level')]
+        colors = [clade.plot_color for clade in self.subtree.find_clades\
+            (order='level')]
+        traces = []
+        for i in range(len(colors)):
+            trace = plotly.graph_objs.Scatter(
+                x = [dict_of_values[para1][i]],
+                y = [dict_of_values[para2][i]],
+                name = '',
+                mode = 'markers',
+                marker = dict(color = colors[i]),
+                showlegend = False,
+                text = names[i]
+            )
+            traces.append(trace)
+        '''
         trace = plotly.graph_objs.Scatter(
             x = dict_of_values[para1],
             y = dict_of_values[para2],
             mode = 'markers',
             text = names
         )
+        '''
         layout = plotly.graph_objs.Layout(
             title = para1 +' and ' +para2 ,
             xaxis =dict(title=para1),
@@ -216,7 +326,7 @@ class MvpTree(object):
             hovermode = 'closest'
         )
         fig = plotly.graph_objs.Figure(
-            data = [trace],
+            data = traces,
             layout = layout
         )
         div = plotly.offline.plot(fig,output_type='div')
@@ -240,12 +350,28 @@ class MvpTree(object):
         print('eerrr clade count %d '%errror_clade_count)
         names = ['ID num:'+ str(clade.ID_num) for clade in self.feature_tree.\
             find_clades(order='level')]
+        colors = [clade.plot_color for clade in self.feature_tree.find_clades\
+            (order='level')]
+        traces = []
+        for i in range(len(colors)):
+            trace = plotly.graph_objs.Scatter(
+                x = [abu_arr[i]],
+                y = [GI_arr[i]],
+                name = '',
+                mode = 'markers',
+                marker = dict(color = colors[i]),
+                showlegend = False,
+                text = names[i]
+            )
+            traces.append(trace)
+            '''
         trace = plotly.graph_objs.Scatter(
             x = abu_arr,#dict_of_values[para1],
             y = GI_arr,#dict_of_values[para2],
             mode = 'markers',
             text = names
         )
+        '''
         layout = plotly.graph_objs.Layout(
             title = ' Abudance and GI ' ,
             xaxis =dict(title='Abudance'),
@@ -253,11 +379,14 @@ class MvpTree(object):
             hovermode = 'closest'
         )
         fig = plotly.graph_objs.Figure(
-            data = [trace],
+            data = traces,
             layout = layout
         )
         div = plotly.offline.plot(fig,output_type='div')
         return div
+    #def colored_tree_plot(self,colors,taxon):
+    #    for clade in tree.find_clades()
+
         
 
 

@@ -267,21 +267,26 @@ def plot_ecology_scatters():
     corr_method = content['corr_method']
     ID_num = int(content['ID_num'])
     taxo_file = content['taxonomy']
-    mvp_tree = corr_tree_new.MvpTree(feature_table,tree,metadata,ID_num)
-    scatter_div1 = ''
-    scatter_div2 = ''
-    if stats_method != 'None':
-        mvp_tree.stats_test(obj_col,stats_method)
-        scatter_div1 = mvp_tree.plot_scatter('pvalue', 'GI')
-        scatter_div2 = mvp_tree.plot_scatter('pvalue', 'abundance')
-    if corr_method != 'None':
-        mvp_tree.get_corr_coefficient(obj_col, corr_method)
-        scatter_div1 = mvp_tree.plot_scatter('corr_coef', 'GI')
-        scatter_div2 = mvp_tree.plot_scatter('corr_coef', 'abundance')
+    mvp_tree = corr_tree_new.MvpTree(feature_table,tree,metadata,taxo_file,ID_num)
     cols = [ele.name for ele in mvp_tree.subtree.get_terminals()]
     ann = annotation.Annotation(cols,feature_table,taxo_file)
     ann_div = ann.plot_annotation()
+    mvp_tree.get_colors(ann.colors,ann.mapped_phylum_colors)
     tree_div = mvp_tree.plot_tree()
     scatter_whole_tree = mvp_tree.plot_whole_tree()
+    scatter_div1 = ''
+    scatter_div2 = ''
+    if stats_method != 'None':
+        mvp_tree.stats_test(obj_col,stats_method,ID_num)
+        scatter_div1 = mvp_tree.plot_scatter('pvalue', 'GI',ID_num)
+        scatter_div2 = mvp_tree.plot_scatter('pvalue', 'abundance',ID_num)
+    if corr_method != 'None':
+        mvp_tree.get_corr_coefficient(obj_col, corr_method,ID_num)
+        scatter_div1 = mvp_tree.plot_scatter('corr_coef', 'GI',ID_num)
+        scatter_div2 = mvp_tree.plot_scatter('corr_coef', 'abundance',ID_num)
     result = {0:tree_div,1:scatter_div1,2:scatter_div2,3:scatter_whole_tree,4:ann_div}
     return jsonify(result)
+
+@bp.route('jump_html',methods=('GET','POST'))
+def jump_html():
+    return render_template('test_js.html')
