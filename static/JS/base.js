@@ -348,3 +348,21 @@ function jump_html(){
     }
     )
 }
+function plot_PCA(){
+        var paras = {};
+        paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+    $.ajax({
+        type: "POST",
+        url: "/graph/plot_PCA",
+        data: JSON.stringify(paras),
+        dataType: "json",
+        contentType: "applications/json;charset=utf-8",
+        success: function(data){
+                     $('#PCA_result').html(data[0]);
+        },
+        error: function(xhr,status){
+                    alert('sorry, there are problems in plot PCA')
+                    }
+
+    })
+}

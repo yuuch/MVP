@@ -9,6 +9,7 @@ import sys
 import re
 #print(sys.path)
 sys.path.append("MVP/")
+import pandas as pd
 import alpha_rarefaction
 import read_metadata
 import heatmap
@@ -23,6 +24,7 @@ import OSEA
 import perform_osea
 import dimension_reduce
 import diversity
+import PCA_plot
 #import corr_tree
 #from MVP.db import get_db
 #url_for('static', filename='base.css')
@@ -290,3 +292,15 @@ def plot_ecology_scatters():
 @bp.route('jump_html',methods=('GET','POST'))
 def jump_html():
     return render_template('test_js.html')
+
+@bp.route('/plot_PCA',methods=('GET','POST'))
+def plot_PCA():
+    content = request.get_json(force=True)
+    metadata = content['metadata']
+    metadata = pd.read_csv(metadata,sep='\t')
+    metadata = metadata.drop(0)
+    div = PCA_plot.run_this_script(metadata)
+    #run_this_script(metadata)
+    result = {0:div}
+    return jsonify(result)
+
