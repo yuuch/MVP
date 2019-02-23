@@ -5,7 +5,10 @@ from plotly import graph_objs as go
 import plotly
 from sklearn.decomposition import PCA
 from plotly import tools
-def func1(M,numeric_cols, axises_num=[0,1],n=4):
+import corr_tree_new
+
+def func1(M,numeric_cols, feature_table_path, tree_path, metadata_path, ID_num,\
+    axises_num=[0,1],n=4):
     """ PCA the matrix, plot the scatter and plot some axises.
         Args: M : numpy.ndarray
             axises_num: the order number of the axises  
@@ -19,6 +22,9 @@ def func1(M,numeric_cols, axises_num=[0,1],n=4):
         for j in range(i):
             pairs.append((j,i))
     traces_array = []
+    mvp_tree = corr_tree_new.MvpTree(feature_table_path,tree_path,metadata_path,ID_num=ID_num)
+    sample_names = mvp_tree.metadata.index.values
+    sample_abuns = mvp_tree.subtree.sample_series
     for pair in pairs:
         first = pair[0]
         second = pair[1]
@@ -36,6 +42,10 @@ def func1(M,numeric_cols, axises_num=[0,1],n=4):
     # get axis
         n = len(pca.components_[0])
         axis_results = []
+
+        # get the abundance for the clade in the subtree.(mean abundance for all sample)
+        colors = [sample_abuns[name] for name in sample_names]
+        text = ['abun: '+str(sample_abuns[name]) for name in sample_names]
         for i in range(n):
             one_hoc = np.zeros(n)
             one_hoc[i]  = 1
@@ -43,7 +53,8 @@ def func1(M,numeric_cols, axises_num=[0,1],n=4):
             single_result = np.dot(inv,one_hoc)
             axis_results.append(single_result)
         traces = []
-        trace0 = go.Scatter(x=x,y=y,name='',mode='markers')
+        trace0 = go.Scatter(x=x,y=y,name='',mode='markers',marker=dict(color=colors,\
+            colorbar=dict(title='abundance'),colorscale='Viridis'),showlegend=False,text=text)
         traces.append(trace0)
     # adjust the length of project axises
         for i in axises_num:
@@ -53,7 +64,8 @@ def func1(M,numeric_cols, axises_num=[0,1],n=4):
             if temp3 < Max:
                 temp0 = math.sqrt(Max/temp3)*axis_results[i][first]
                 temp1 = math.sqrt(Max/temp3)*axis_results[i][second]
-            trace = go.Scatter(x=[0,temp0],y = [0,temp1],mode='lines',name = numeric_cols[i])
+            trace = go.Scatter(x=[0,temp0],y = [0,temp1],mode='lines',line=dict(dash='dash'),name = numeric_cols[i],\
+                showlegend=False)
             traces.append(trace)
         traces_array.append(traces)
     return traces_array,pairs
@@ -73,10 +85,6 @@ def six_subplot(traces_array, pairs, num=6):
     div = plotly.offline.plot(fig,output_type='div')
     return div
 
-
-
-
-    pass 
 def judge_numeric_col(df):
     num_cols = []
     for col in df.columns:
@@ -86,18 +94,24 @@ def judge_numeric_col(df):
         except:
             pass
     return num_cols
-def run_this_script(df):
+
+def run_this_script(df,feature_table_path, tree_path, metadata_path, ID_num):
+
     numeric_cols = judge_numeric_col(df)
     #print(numeric_cols)
     M = df[numeric_cols].values
-    traces_array ,pairs = func1(M, numeric_cols)
+    traces_array ,pairs = func1(M, numeric_cols,feature_table_path, tree_path, metadata_path, ID_num)
     div = six_subplot(traces_array, pairs)
     return div
+
 if __name__ == "__main__":
     df = pd.read_csv('upload_files/demo_metadata.tsv', sep='\t')
     #### drop the row named #q2 type
     df = df.drop(0)
-
-    div = run_this_script(df)
+    feature_table_path='upload_files/feature-table.biom'
+    tree_path='upload_files/tree.nwk'
+    metadata_path='upload_files/demo_metadata.tsv'
+    ID_num=233
+    div = run_this_script(df,feature_table_path, tree_path, metadata_path, ID_num)
     f = open('Feb15.html', 'w')
     f.write(div)

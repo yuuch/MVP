@@ -24,7 +24,7 @@ import OSEA
 import perform_osea
 import dimension_reduce
 import diversity
-import PCA_plot
+import PCA_plot_ywch
 #import corr_tree
 #from MVP.db import get_db
 #url_for('static', filename='base.css')
@@ -299,8 +299,8 @@ def plot_PCA():
     metadata = content['metadata']
     metadata = pd.read_csv(metadata,sep='\t')
     metadata = metadata.drop(0)
-    div = PCA_plot.run_this_script(metadata)
-    #run_this_script(metadata)
+    #print(dir(PCA_plot_ywch))
+    div = PCA_plot_ywch.run_this_script(metadata)
     result = {0:div}
     return jsonify(result)
 
