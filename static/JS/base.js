@@ -321,7 +321,7 @@ function plot_ecology_scatter(){
             paras.corr_method = document.getElementById('corr_coef').value;
             paras.ID_num = document.getElementById('ID_num').value;
             paras.taxonomy = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
-            console.log(JSON.stringify(paras))
+            console.log(JSON.stringify(paras));
                 $.ajax({
                     type: "POST",
                     url: "/graph/plot_ecology_scatters",// TODO
@@ -351,6 +351,10 @@ function jump_html(){
 function plot_PCA(){
         var paras = {};
         paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
+        paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
+        paras.ID_num = document.getElementById('ID_num').value;
+        paras.tree_path = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
+        console.log(JSON.stringify(paras));
     $.ajax({
         type: "POST",
         url: "/graph/plot_PCA",

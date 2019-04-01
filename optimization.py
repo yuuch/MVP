@@ -25,7 +25,7 @@ def bfs(tree,threshold):
     return tree
 bfs(tree)
 def get_score(node,coefs):
-    score = coefs[0]*np.mean(node.sample_series)+coefs[1]*node.GI
+    score = coefs[0]*np.mean(node.sample_series)+coefs[1]*node.GI+coefs[2](node.sample_series)
     return score
 def tree_optimize(mvp_tree,coefs=None):
     """ prune a mvp tree.

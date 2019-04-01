@@ -79,13 +79,14 @@ class MvpTree(object):
     def metadata_set_index(self):
         #metadata = self.metadata
         #feature_table = self.feature_table.transpose()
-        p1 = '.*[Ss][Aa][Mm][Pp][Ll][Ee].*[Ii][Dd]'
+        p1 = '.*[Ss][Aa][Mm][Pp][Ll][Ee].*[IiNn][DdAa]'
         pattern = re.compile(p1)
         SampleID='#SampleID'
         for ele in self.metadata.columns:
-            if len(pattern.findall(ele)[0]) > 5:
-                SampleID = ele
-                break
+            if pattern.findall(ele):
+                if len(pattern.findall(ele)[0]) > 4:
+                    SampleID = ele
+                    break
             else:
                 SampleID='#SampleID'
         self.metadata = self.metadata.set_index(SampleID)

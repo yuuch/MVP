@@ -296,11 +296,16 @@ def jump_html():
 @bp.route('/plot_PCA',methods=('GET','POST'))
 def plot_PCA():
     content = request.get_json(force=True)
+    print(content)
     metadata = content['metadata']
-    metadata = pd.read_csv(metadata,sep='\t')
-    metadata = metadata.drop(0)
+    tree_path = content['tree_path']
+    feature_table = content['feature_table']
+    ID_num =int(content['ID_num'])
+    metadata_df = pd.read_csv(metadata,sep='\t')
+    metadata_df = metadata_df.drop(0)
     #print(dir(PCA_plot_ywch))
-    div = PCA_plot_ywch.run_this_script(metadata)
+    div = PCA_plot_ywch.run_this_script(metadata_df, feature_table, tree_path,\
+        metadata, ID_num)
     result = {0:div}
     return jsonify(result)
 

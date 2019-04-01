@@ -1,0 +1,71 @@
+tic = time.time()
+cps = [0.005]
+coefs = [
+     [1,800,200]
+       ]
+temp_threshold = 0.5
+continue_flag = True
+cp_delta = 0.01
+deltas = [10,20,30]
+results = {}
+while continue_flag:
+    for cp in cps:
+        mvp_tree.feature_tree =copy.deepcopy(backup_mvp_tree)
+        if len(mvp_tree.feature_tree.get_terminals()) < init_terminals_num:
+            print('tree has been edited')
+            break
+        sub_trees = sep_mvp_tree(mvp_tree,cp=cp)
+        for coef in coefs:
+            df = generate_new_OTU_table(sub_trees,coef).T
+            X = []
+            Y = []
+            for ele in df.index:
+                X.append(df.loc[ele])
+                Y.append(metadata[obj_col][ele])
+                precisions = []
+                for train_time in range(10):    
+                    X,Y = shuffle(X,Y)
+                    sample_num = len(X)
+                    sep_num = int(0.8*sample_num)
+                    train_set = [X[:sep_num],Y[:sep_num]]
+                    test_set = [X[sep_num:],Y[sep_num:]]
+    ##
+    #clf = svm.SVC(gamma='scale', decision_function_shape='ovr')
+    #clf.fit(train_set[0], train_set[1])  
+    ##from sklearn.naive_bayes import GaussianNB
+                    clf = MultinomialNB(alpha=1)
+                    clf.fit(X, Y)
+                    predict_result = clf.predict(test_set[0])
+    ##
+                    count = 0
+                    for i in range(len(predict_result)):
+                        if predict_result[i] == test_set[1][i]:
+                            count += 1
+                        else:
+                            pass
+                precisions.append(1.0*count/len(predict_result))
+            temp = str([cp]+coef)
+            results[temp]=np.mean(precisions)
+    print(results)
+    max_key = max(results.keys(),key=(lambda key: results[key]))
+    if results[max_key] > temp_threshold:
+        temp_threshold = results[max_key]
+        print('max_key:',max_key)
+        print('precision:',temp_threshold)
+    else:
+        continue_flag = False
+    temp = [float(ele ) for ele in max_key[1:-1].split(', ')]
+    cps  = [abs(temp[0]-cp_delta), abs(temp[0]), abs(temp[0]+cp_delta)]
+    temp = temp[1:]
+    #coef = [temp]
+    temps = []
+    for i,ele  in enumerate(temp):
+        temps.append([ele+deltas[i],ele-deltas[i]])
+        #coef.append([ele-deltas[i]])
+    coef = list(itertools.product(temps))
+    coef.append(temp)
+    print('cps:',cps)
+    print('coef',coef)
+    new_tic = time.time()
+    print((new_tic-tic)/60)
+    results = {}
