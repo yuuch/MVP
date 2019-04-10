@@ -4,9 +4,11 @@ from Bio import Phylo
 import plotly
 import plotly.graph_objs as go
 import copy
+import numpy as np
 class Annotation(object):
     def __init__(self, cols, feature_table_file, taxo_file):
         #self.tree = tree#Phylo.read(file = tree_file,format = tree_file_format)
+        #obtain features(cols) from tree.get_terminals() which parallel to the tree.
         self.cols = cols
         self.feature_table = biom.load_table(feature_table_file).to_dataframe().to_dense()
         self.taxonomy = pd.read_csv(taxo_file,sep='\t')
@@ -50,22 +52,15 @@ class Annotation(object):
                 #levels['level'+str(len(levels))] = unassigned[len(levels)]    
             feature_name_count_dict[feature_name]=levels
         self.barplot_dict = feature_name_count_dict
-    '''
-    def add_node_num(self,tree):
-        nodes = tree.get_terminals()+tree.get_non_terminals()
-        i = 0
-        for node in nodes:
-            node.node_num = i 
-            i += 1
-    '''
+
     def generate_colors(self):
-        #colors =[]
         colors = ['rgb(255,0,0)','rgb(255,247,0)','rgb(255,0,247)','rgb(162,255,0)',
         'rgb(255,111,0)','rgb(111,0,255)','rgb(2,104,23)','rgb(104,2,40)','rgb(2,23,104)',
         'rgb(192,77,11)','rgb(12,192,162)','rgb(126,3,145)','rgb(17,102,7)','rgb(57,12,179)',
         'rgb(195,216,8)','rgb(216,8,154)','rgb(6,97,94)','rgb(97,6,36)','rgb(125,218,5)',
         'rgb(255,0,80)']
         self.colors = colors
+
     def plot_annotation(self):
         mapped_level={'level0':'Kingdom','level1':'Phylum','level2':'Class','level3':'Order',
                  'level4':'Family','level5':'Genus','level6':'Species','level7':'OTU'}
@@ -74,12 +69,11 @@ class Annotation(object):
         color_index = 0
         for i in range(7):
             level_appeard_name['level'+str(i)]={}
+        np.random.seed(1)
         for otu in self.barplot_dict:
             otu_data = []
-            #reverse_level=[]
-            #for level in self.barplot_dict[otu]:
-                #reverse_level.append(level)
-            #reverse_level.reverse()
+            phylum_colored = False # flag used to color level under phylum
+            phylum_color_index = 0 # default phylumn color
             for level in self.barplot_dict[otu]:
                 for ele in self.barplot_dict[otu][level]:
                     temp_index = 0
@@ -88,14 +82,24 @@ class Annotation(object):
                         temp_index = level_appeard_name[level][ele]
                         not_appeared = False
                     else:
-                        #color_index +=1
-                        #color_index %= len(self.colors)
-                        temp_index = (len(level_appeard_name[level])+int(level[5])*3)%len(self.colors)
-                        level_appeard_name[level][ele]=temp_index
+                        if phylum_colored:
+                            temp_index = phylum_color_index
+                        else:
+                            temp_index = (int(level[-1])+len(level_appeard_name[level]))%len(self.colors)
+                            level_appeard_name[level][ele]=temp_index
                     temp_color = self.colors[temp_index]
+                    if phylum_colored:# modified(temp_color)
+                        rgb_2_num = lambda color_rgb:[int(ele) for ele in color_rgb[4:-1].split(',')]
+                        nums_2_rgb = lambda nums: 'rgb('+str(nums[0])+','+str(nums[1])+','+str(nums[2])+')'
+                        index = np.random.randint(3)
+                        nums = rgb_2_num(temp_color)
+                        multiplier = np.random.randint(100)*0.01
+                        nums[index] = int(nums[index]*multiplier)
+                        temp__color = nums_2_rgb(nums)
+
                     if ele =='Unassigned' or ele[3:]=='unassigned':
                         temp_color = 'rgb(0,0,0)'
-                    filt_legend=['level1','level2']
+                    filt_legend=['level1']
                     filt_result=False
                     #print(ele[0])
                     if level in filt_legend:
@@ -109,6 +113,9 @@ class Annotation(object):
                                      marker = dict(color=temp_color)
                         )
                     otu_data.append(trace)
+                if level == 'level1':
+                    phylum_colored = True
+                    phylum_color_index = temp_index
             if len(data)>0:
                 last_otu_data = copy.copy(data[-1])
                 to_be_del=[]
