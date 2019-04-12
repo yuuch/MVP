@@ -1,8 +1,8 @@
     function send_heatmap(){
                 var dict1 = {};
-                dict1.feature0 = document.getElementById('mySelect0').value;
-                dict1.feature1 = document.getElementById('mySelect1').value;
-                dict1.feature2 = document.getElementById('mySelect2').value;
+                dict1.feature0 = document.getElementById('mySelect1').value;
+                dict1.feature1 = document.getElementById('mySelect2').value;
+                dict1.feature2 = document.getElementById('mySelect3').value;
                 dict1.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
                 dict1.feature_table = 'MVP/upload_files/'+document.getElementById("feature_table").value;
                 dict1.prevalence = document.getElementById('prevalence').value;
@@ -63,8 +63,18 @@ function read_metadata() {
                         failure: function(errMsg){alert(errMsg);}
                     }).responsetext;
               var x0 = document.getElementById("mySelect0");
-              
           };
+        function copyOptions(){
+            var options = document.getElementById('mySelect0').innerHTML;
+            var second = document.getElementById('mySelect1');
+            var second3 = document.getElementById('mySelect2');
+            var second4 = document.getElementById('mySelect3');
+            second.innerHTML=options;
+            second3.innerHTML=options;
+            second4.innerHTML=options;
+            console.log(options)
+
+        }
 
             function plot_tree(){
                 var tree_paras={};
@@ -74,11 +84,12 @@ function read_metadata() {
                 tree_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
                 tree_paras.taxonomy_file = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
                 tree_paras.tree_type = document.getElementById('tree_type').value;
-                tree_paras.feature0 = document.getElementById('mySelect0').value;
-                tree_paras.feature1 = document.getElementById('mySelect1').value;
-                tree_paras.feature2 = document.getElementById('mySelect2').value;
+                tree_paras.feature0 = document.getElementById('mySelect1').value;
+                tree_paras.feature1 = document.getElementById('mySelect2').value;
+                tree_paras.feature2 = document.getElementById('mySelect3').value;
                 tree_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
                 tree_paras.feature_table = 'MVP/upload_files/'+document.getElementById("feature_table").value;
+                tree_paras.show_label = document.getElementById('show_label').value;
                 console.log(JSON.stringify(tree_paras))
                 $.ajax({
                     type: "POST",
@@ -96,7 +107,7 @@ function read_metadata() {
                         //document.getElementById('result').innerHTML=data;
                     },
                     error: function(xhr,status){
-                        alert('sorry, there are problems')
+                        alert('sorry, there are problems in plot tree')
                     }
                 }
                 )

@@ -3,14 +3,20 @@ import pandas as pd
 import copy
 import numpy as np
 import plotly
+import re
 from Bio import Phylo
+
 class Heatmap(object):
     def __init__(self,meta_data, feature_table, file_type='biom'): #metadata is sample metadata
         self.meta = pd.read_csv(meta_data,sep='\t')
+        self.select_features = self.meta.columns[:3]
         self.biom_table = biom.load_table(feature_table)
         self.df = self.biom_table.to_dataframe().transpose().to_dense()
+        self.df = self.df.div(self.df.sum(axis=1), axis=0)
         self.df_primary_col = self.df.columns
-        
+        self.numeric_df = copy.copy(self.df)
+        self.metadata_set_index()
+        #self.ordered = False
         '''
         Here df is a table like:
                 otu0 otu1 otu2
@@ -18,7 +24,27 @@ class Heatmap(object):
         sample1
         sample2
         '''
-        #print(self.df.index)
+        #print(self.df.index)]
+    
+
+    def metadata_set_index(self):
+        #metadata = self.metadata
+        #feature_table = self.feature_table.transpose()
+        p1 = '.*[Ss][Aa][Mm][Pp][Ll][Ee].*[IiNn][DdAa]'
+        pattern = re.compile(p1)
+        SampleID='#SampleID'
+        for ele in self.meta.columns:
+            if pattern.findall(ele):
+                if len(pattern.findall(ele)[0]) > 4:
+                    SampleID = ele
+                    break
+            else:
+                SampleID='#SampleID'
+        self.meta = self.meta.set_index(SampleID)
+        try:
+            self.meta = self.meta.drop(['#q2:types'])
+        except:
+            print('no #q2:types exist')
 
     def map(self):
         """
@@ -26,7 +52,7 @@ class Heatmap(object):
         """
         self.df_primary_col = self.df.columns
         #print(len(self.df.columns))
-        array1 = self.meta[self.meta.columns[0]]# sample id of metadata
+        array1 = self.meta.index# sample id of metadata
         array2 = self.df.index  # sample id of feature-table
         mapped_dict ={'metadata':[],'feature_table':[]}
         for i in range(len(array1)):
@@ -35,9 +61,7 @@ class Heatmap(object):
                     mapped_dict['metadata'].append(i)
                     mapped_dict['feature_table'].append(j)
                     break
-        #print(mapped_dict['feature_table'])
-        #print('metadata')
-        #print(mapped_dict['metadata'])
+
         temp_table = self.df.iloc[mapped_dict['feature_table'],:]
         temp_table.index = list(range(temp_table.shape[0]))
         temp_meta = self.meta.iloc[mapped_dict['metadata'],:]
@@ -48,10 +72,11 @@ class Heatmap(object):
         for ele in mapped_dict['metadata']:
             new_index.append(array1[ele])
         self.df.index=new_index
-        #print(len(self.df.columns))
 
     def sort_by_features(self,*args):
+
         list_args = [ele for ele in args]
+        self.select_features = list_args
         copy_args = copy.copy(list_args)
         for ele in copy_args:
             if ele =='':
@@ -61,11 +86,18 @@ class Heatmap(object):
         if len(list_args)>0:
             print(list_args)
             self.df = self.df.sort_values(by=list_args)
+            """
+            self.ordered = True
+            self.selected_metadata_df = self.df[list_args]
+            """
 
-    def obtain_numerical_matrix(self,cols):
+    def obtain_numerical_matrix(self,cols=None):
         #cols = [ele.name for ele in tree.get_terminals()]
+        if not cols:
+            cols = self.df_primary_col
+            print('cols num: ',len(cols))
         new_df = self.df[cols]
-        self.df = new_df
+        self.numeric_df = new_df
 
     def filter(self,prevalence_threshold=0.1, abundance_num=100, variance_num=100):
         """
@@ -112,7 +144,27 @@ class Heatmap(object):
             sort_vari = sorted(variance_dict,key=variance_dict.get,reverse=True)
             temp_col = sort_vari[0:variance_num]
         self.df = self.df[temp_col]
-    def plotly_div(self):
+
+    @staticmethod
+    def map_metadata_values(selected_metadata_df):
+        """map a matadata df(string value) to a number value.
+        and save the origin values in the hovertext obj.
+        """
+        metadata_df = copy.copy(selected_metadata_df)
+        hovertext =selected_metadata_df.values
+        appeared = {}
+        i = 1
+        for col in metadata_df.columns:
+            for j,ele in enumerate(metadata_df[col]):
+                if ele in appeared:
+                    metadata_df[col][j] =appeared[ele]
+                else:
+                    appeared[ele] = i
+                    metadata_df[col][j] = i
+                    i += 1
+        return metadata_df, hovertext
+
+    def plotly_div(self,show_metadata_label=True):
         '''
         the next three lines are test df.
         self.df = pd.DataFrame({
@@ -120,17 +172,30 @@ class Heatmap(object):
             'col1':[1,2,3,4,5,6]
         })
         '''
-        data = [plotly.graph_objs.Heatmap(z=self.df.values.tolist(),
-                                        x=list(self.df.columns),y=self.df.index)]
-        layout = plotly.graph_objs.Layout(
-            #width = 1000,
-            #height = 800
-        )
+        trace1 = plotly.graph_objs.Heatmap(z=self.numeric_df.values.tolist(),
+                                        x=list(self.df.columns),y=self.df.index,
+                                        xaxis='x2',colorscale='Viridis')
+        trace2 = plotly.graph_objs.Heatmap()
+        select_metadata = self.meta[self.select_features]
+        
+        metadata_df, hovertext = self.map_metadata_values(select_metadata)
+        trace2 = plotly.graph_objs.Heatmap(z=metadata_df.values,
+                 x = list(metadata_df.columns), y = self.df.index,
+                 text=hovertext,hoverinfo='text')
+        data = [trace2,trace1]
+        try:
+            assert show_metadata_label
+            layout = plotly.graph_objs.Layout(xaxis=dict(
+                    domain=[0,0.1]
+                ),xaxis2=dict(
+                    domain = [0.10001,1]
+                )
+                )   
+        except:
+            layout = plotly.graph_objs.Layout()
         fig = plotly.graph_objs.Figure(data=data,layout=layout)
         div_string = plotly.offline.plot(fig,filename='plotly.html',output_type='div')
         return div_string
-    def normalize(self,methods='log'):
-        pass
 
 
     

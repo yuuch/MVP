@@ -54,11 +54,13 @@ class Annotation(object):
         self.barplot_dict = feature_name_count_dict
 
     def generate_colors(self):
-        colors = ['rgb(255,0,0)','rgb(255,247,0)','rgb(255,0,247)','rgb(162,255,0)',
-        'rgb(255,111,0)','rgb(111,0,255)','rgb(2,104,23)','rgb(104,2,40)','rgb(2,23,104)',
-        'rgb(192,77,11)','rgb(12,192,162)','rgb(126,3,145)','rgb(17,102,7)','rgb(57,12,179)',
-        'rgb(195,216,8)','rgb(216,8,154)','rgb(6,97,94)','rgb(97,6,36)','rgb(125,218,5)',
-        'rgb(255,0,80)']
+        colors = [
+            'rgb(66,212,244)','rgb(230,25,75)','rgb(245,130,49)',
+            'rgb(60,180,75)','rgb(67,99,216)','rgb(145,30,180)','rgb(240,50,230)',
+            'rgb(31,119,180)','rgb(255,127,14)','rgb(44,160,44)','rgb(214,39,40)',
+            'rgb(148,103,189)','rgb(140,86,75)','rgb(227,119,194)','rgb(127,127,127)',
+            'rgb(188,189,34)','rgb(23,190,207)'
+        ]
         self.colors = colors
 
     def plot_annotation(self):
@@ -74,7 +76,9 @@ class Annotation(object):
             otu_data = []
             phylum_colored = False # flag used to color level under phylum
             phylum_color_index = 0 # default phylumn color
+            level_num = 0
             for level in self.barplot_dict[otu]:
+                level_num += 1
                 for ele in self.barplot_dict[otu][level]:
                     temp_index = 0
                     not_appeared = True
@@ -93,11 +97,10 @@ class Annotation(object):
                         nums_2_rgb = lambda nums: 'rgb('+str(nums[0])+','+str(nums[1])+','+str(nums[2])+')'
                         index = np.random.randint(3)
                         nums = rgb_2_num(temp_color)
-                        multiplier = np.random.randint(100)*0.01
-                        nums[index] = int(nums[index]*multiplier)
-                        temp__color = nums_2_rgb(nums)
+                        nums[index] += (255-nums[index])*(0.1*level_num)
+                        temp_color = nums_2_rgb(nums)\
 
-                    if ele =='Unassigned' or ele[3:]=='unassigned':
+                    if ele =='Unassigned' or ele[4:]=='unassigned':
                         temp_color = 'rgb(0,0,0)'
                     filt_legend=['level1']
                     filt_result=False
@@ -108,7 +111,7 @@ class Annotation(object):
                                      x = [self.barplot_dict[otu][level][ele]],
                                      orientation='h',
                                      name = ele,
-                                     showlegend = not_appeared and filt_result,
+                                     showlegend = filt_result,
                                      legendgroup = mapped_level[level],
                                      marker = dict(color=temp_color)
                         )
