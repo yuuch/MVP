@@ -3,11 +3,13 @@
                 dict1.feature0 = document.getElementById('mySelect1').value;
                 dict1.feature1 = document.getElementById('mySelect2').value;
                 dict1.feature2 = document.getElementById('mySelect3').value;
+                dict1.node_num = document.getElementById('node_num').value;
                 dict1.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
                 dict1.feature_table = 'MVP/upload_files/'+document.getElementById("feature_table").value;
                 dict1.prevalence = document.getElementById('prevalence').value;
                 dict1.abundance = document.getElementById('abundance').value;
                 dict1.variance = document.getElementById('variance').value;
+                dict1.show_label = document.getElementById('show_label').value;
                 //alert(typeof(JSON.stringify(dict1.metadata)));
                 console.log(JSON.stringify(dict1))
 

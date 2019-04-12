@@ -63,16 +63,43 @@ def heat_map():
     metadata = content['metadata']
     feature_table = content['feature_table']
     features = [content['feature0'],content['feature1'],content['feature2']]
-    prevalence = content['prevalence']
-    abundance = content['abundance']
-    variance = content ['variance']
-    heatmap_instance = heatmap.Heatmap(metadata,feature_table)
+    ID_num =int(content['node_num'])
+    #prevalence = content['prevalence']
+    #abundance = content['abundance']
+    #variance = content ['variance']
+    try:
+        f =  open(metadata.split('/')[-1] + '_heatmap.pickle','rb')
+        heatmap_instance = pickle.load(f)
+        print('read heatmap from pickle')
+        f.close()
+    except:
+        heatmap_instance = heatmap.Heatmap(metadata, feature_table)
+        heatmap_instance.map()
+        with open(metadata.split('/')[-1] + '_heatmap.pickle','wb') as g:
+            pickle.dump(heatmap_instance,g)
+            print('write heatmap to pickle')
     #heatmap_instance.filter(prevalence_threshold=prevalence,abundance_num=abundance,variance_num=variance)
     heatmap_instance.map()
     heatmap_instance.sort_by_features(features[0],features[1],features[2])
-    cols = list(heatmap_instance.df.columns)
+    try:
+        f = open(metadata.split('/')[-1]+'_mvp_tree.pickle','rb')
+        mvp_tree = pickle.load(f)
+        print('read mvp_tree from pickle')
+        mvp_tree.get_subtree(ID_num)
+        cols = [ele.name for ele in mvp_tree.subtree.get_terminals()]
+        f.close()
+    except:
+        string_ = 'there are no pickles to read.please try plot_tree button'
+        result = {0: string_}
+        return jsonify(result)
     heatmap_instance.obtain_numerical_matrix(cols)
-    result = {0:heatmap_instance.plotly_div()}
+    show_label = content['show_label']
+    if show_label == 'show': # show metadata besides the heatmap or not
+        show_label = True
+    else:
+        show_label = False
+    heatmap_div = heatmap_instance.plotly_div(show_label)
+    result = {0:heatmap.div}
     return jsonify(result)
 
 @bp.route('/plot_tree',methods=('GET','POST'))
@@ -87,13 +114,13 @@ def plot_tree():
     metadata  = content['metadata']
     #tree = circular_tree.read_tree(tree_file,file_type)
     try:
-        f = open(tree.split('/')[-1]+'.pickle','rb')
+        f = open(metadata.split('/')[-1]+'_mvp_tree.pickle','rb')
         mvp_tree = pickle.load(f)
         print('read mvp_tree from pickle')
         f.close()
     except:
         mvp_tree = corr_tree_new.MvpTree(feature_table,tree,metadata,taxo_file,ID_num)
-        with open(tree.split('/')[-1]+'.pickle', 'wb') as g:
+        with open(metadata.split('/')[-1]+'_mvp_tree.pickle', 'wb') as g:
             pickle.dump(mvp_tree,g)
             print('wirte mvp_tree to pickle')
     mvp_tree.get_subtree(ID_num)
@@ -109,14 +136,14 @@ def plot_tree():
     #plot_heatmap
     features = [content['feature0'], content['feature1'], content['feature2']]
     try:
-        f =  open(tree.split('/')[-1] + 'heatmap.pickle','rb')
+        f =  open(metadata.split('/')[-1] + '_heatmap.pickle','rb')
         heatmap_instance = pickle.load(f)
         print('read heatmap from pickle')
         f.close()
     except:
         heatmap_instance = heatmap.Heatmap(metadata, feature_table)
         heatmap_instance.map()
-        with open(tree.split('/')[-1] + 'heatmap.pickle','wb') as g:
+        with open(metadata.split('/')[-1] + '_heatmap.pickle','wb') as g:
             pickle.dump(heatmap_instance,g)
             print('write heatmap to pickle')
     heatmap_instance.sort_by_features(features[0], features[1], features[2])
@@ -127,7 +154,6 @@ def plot_tree():
         show_label = True
     else:
         show_label = False
-
     heatmap_div = heatmap_instance.plotly_div(show_label)
     # total         
     result = {0:tree_div,1:ann_div,2:heatmap_div}

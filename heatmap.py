@@ -176,7 +176,7 @@ class Heatmap(object):
                                         x=list(self.df.columns),y=self.df.index,
                                         xaxis='x2',colorscale='Viridis')
         trace2 = plotly.graph_objs.Heatmap()
-        select_metadata = self.meta[self.select_features]
+        select_metadata = self.df[self.select_features]
         
         metadata_df, hovertext = self.map_metadata_values(select_metadata)
         trace2 = plotly.graph_objs.Heatmap(z=metadata_df.values,
