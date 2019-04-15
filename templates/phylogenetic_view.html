@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='CSS/base.css') }}" />
+        <script src="{{ url_for('static', filename='JS/base.js') }}"></script>
+    </head>
+    <body>
+
+    <h1>phylogenetic view</h1>
+
+    <section>
+    <button id='read_metadata'onclick="read_metadata()">load metadata</button> 
+    <br>
+    Choose the feature you are interested in :
+    <select id="mySelect0" size=1>
+    <option>None</option>
+    </select>
+    <br>
+    You can <b>choose one method </b>below:<br>
+       1.For <b>categorical</b> metadata(like "yes" or "no" in some column),we prefer use the statistics test methods.
+       statistical test methods:
+            <select id = 'stats_test'>
+                    <option>None</option>
+                    <option>t_test</option>
+                    <option>F_test</option>
+                    <option>mannwhitneyu</option>
+                </select>
+                <br>
+               2.  For <b>numerical</b> metadata(like Age),we prefer use the correlation Analysis.
+                correlation coefficient methods:
+                <select id="corr_coef">
+                    <option>None</option>
+                    <option>spearman</option>
+                    <option>pearson</option>
+                </select>
+                <br>
+         
+                subtree root node ID number <input id='ID_num' value=0>
+                <button id='ecology_scatter_generator' onclick="plot_ecology_scatter()">plot ecology_scatter</button>
+       <div id='plot_subtree' >subtree</div>
+       <div id='sub_tree_anno'>subtree anno</div>
+       <div id='whole_abu_GI_result'>whole treee abu and gi</div>
+    </section>
+    </body>
+    <br>
+</html>

@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='CSS/base.css') }}" />
+        <script src="{{ url_for('static', filename='JS/base.js') }}"></script>
+    </head>
+    <body>
+       <h1>metadata project</h2>
+        Select three numerical features from metadata columns:
+        <br>
+       <select>
+           <option></option>
+       </select>
+
+       <select>
+           <option></option>
+       </select>
+
+       <select>
+           <option></option>
+       </select>
+
+
+       <button id='metadata project' onclick='plot_PCA()'>plot PCA</button>
+       <div id='PCA_result'>PCA result</div>
+
+    </body>
+
+</html>

@@ -1,6 +1,6 @@
 <html>
     <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"></script>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='CSS/base.css') }}" />
         <script src="{{ url_for('static', filename='JS/base.js') }}"></script>
@@ -11,16 +11,18 @@
         <h1>Metagenomics Visualize Platform</h1>
         <h2>Upload File</h2>
         <div id='div2'>
-            1. upload your File.<br>
-            2.select which item you are interested in .
+            click below link to upload your metadata,feature-table,phylogenetic tree and taxonomy table.
             <br>
+        <a href="{{ url_for('upload_metadata') }}"><b>upload datas</b></a><br>
+        <a href="{{ url_for('phylogenetic_view') }}"><b>phylogenetic view</b></a><br>
+        <a href="{{ url_for('multi_target_view') }}"><b>multi-target view</b></a><br>
+        <a href="{{ url_for('optimization') }}"><b>optimization</b></a><br>
             <br>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file id='upload'>
-      <input type=submit value=Upload >
-    </form>
     </div>
-    feature table file name :<input id='feature_table' value='feature-table.biom'>(e.g.: "experiment1.otutable" without quote)
+    <b>Make sure you upload files to the correct positions, if not ,edit the filename below:</b>
+    <button onclick="rename_files()">Update File names</button><br>
+    feature table file name :<input id='feature_table' value='feature-table.biom'>
+    <br>
     sample metadata file name:<input id='metadata' value='demo_metadata.tsv'>
     <br>
     Taxon:<input id='taxonomy_file' value='taxonomy.tsv'>
@@ -31,7 +33,7 @@
                  <option>newick</option>
                 <option>phyloxml</option>
             </select>
-    <h2>Summary</h2>
+    <h2>Main view</h2>
     <button id='read_metadata'onclick="read_metadata()">load metadata</button> 
     Choose the feature you are interested in :
     <select id="mySelect0" size=1>
@@ -139,6 +141,8 @@
     </section>
     <br>
     <br>
+    <!--
+
     <section>
        For categorical metadata(like "yes" or "no" in some column),we prefer use the statistics test methods.
        statistical test methods:
@@ -164,6 +168,7 @@
        <div id='sub_tree_anno'>subtree anno</div>
        <div id='whole_abu_GI_result'>whole treee abu and gi</div>
     </section>
+    -->
     <br>
     <br>
     <section>
@@ -176,7 +181,6 @@
             <select id="statistics methods">
                     <option>t_test</option>
                     <option>F_test</option>
-                    <option>some-other-test-methods</option>
                     <option>TO BE CONTINUED..</option>
                 </select>
             </form>
@@ -199,29 +203,6 @@
     <br>
 
             
-        <br>
-        <h3>filt matrix</h3>
-        Select number of features to be analysis default:<input id='Num_features' value=1>
-        <button id='feature_num' onclick="copy_options()">feature_ num_confirm</button>
-        <br>
-        Prevalence:<input id='prevalence' value=0.1>
-        <br>
-        Abundance:<input id='abundance' value=100>
-        <br>
-        Variance:<input id='variance' value=100>
-        <br>
-        <script>
-            function copy_options(){
-            var num_features =document.getElementById("Num_features").value;
-            if(num_features > 1){
-                $('#mySelect0 option').clone().appendTo('#mySelect1')
-                if(num_features > 2){
-                $('#mySelect0 option').clone().appendTo('#mySelect2')
-                }
-            }
-            }
-        </script> 
-        <br>
         <br>
         <h2>Abundance</h2>
         <div>abundance type:
@@ -274,7 +255,8 @@
         choose the rank list.<br>
         choose the lineage level(e.g. phylum ,genus,specied.etc)
        
-        
+      <!--
+
        <h2>Dimension Reduction</h2>
        n_component(which deicde the number of dimensions after dimension reduction):
        <select id='flag_3d'>
@@ -299,7 +281,6 @@
         <h2>rarefaction</h2>
         
         <div id='rarefaction_box_result' style="width:800px;height: 600px"></div>
-        
        
        <h3>beta diversity</h3>
 
@@ -326,6 +307,9 @@
 
        <button id='metadata project' onclick='plot_PCA()'>plot PCA</button>
        <div id='PCA_result'>PCA result</div>
+        
+    -->
+
        
     </body>
 
