@@ -173,7 +173,7 @@ class Heatmap(object):
         })
         '''
         trace1 = plotly.graph_objs.Heatmap(z=self.numeric_df.values.tolist(),
-                                        x=list(self.df.columns),y=self.df.index,
+                                        x=list(self.numeric_df.columns),y=self.numeric_df.index,
                                         xaxis='x2',colorscale='Viridis')
         trace2 = plotly.graph_objs.Heatmap()
         select_metadata = self.df[self.select_features]
@@ -181,7 +181,7 @@ class Heatmap(object):
         metadata_df, hovertext = self.map_metadata_values(select_metadata)
         trace2 = plotly.graph_objs.Heatmap(z=metadata_df.values,
                  x = list(metadata_df.columns), y = self.df.index,
-                 text=hovertext,hoverinfo='text')
+                 text=hovertext,hoverinfo='text',showscale=False)
         data = [trace2,trace1]
         try:
             assert show_metadata_label

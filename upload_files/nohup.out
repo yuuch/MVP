@@ -1,0 +1,17 @@
+[I 13:53:56.130 NotebookApp] Serving notebooks from local directory: /home/ywch
+[I 13:53:56.130 NotebookApp] 0 active kernels
+[I 13:53:56.130 NotebookApp] The Jupyter Notebook is running at:
+[I 13:53:56.130 NotebookApp] http://localhost:8888/?token=991db914f38f639fa94857399a830720aaf218a7d06db93a
+[I 13:53:56.130 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 13:53:56.134 NotebookApp] 
+    
+    Copy/paste this URL into your browser when you connect for the first time,
+    to login with a token:
+        http://localhost:8888/?token=991db914f38f639fa94857399a830720aaf218a7d06db93a
+[I 13:53:56.627 NotebookApp] Accepting one-time-token-authenticated connection from ::1
+VMware: No 3D enabled (0, Success).
+libGL error: failed to create dri screen
+libGL error: failed to load driver: vmwgfx
+Created new window in existing browser session.
+[I 13:58:36.214 NotebookApp] Shutting down on /api/shutdown request.
+[I 13:58:36.215 NotebookApp] Shutting down 0 kernels

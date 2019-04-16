@@ -20,7 +20,8 @@ def obtain_rank_list(part1, part2, test_method_name='t_test'):
     for ele in tmp_list:
         rank_list[ele]=rank_list_unsort[ele]
     return rank_list
-def run_osea(taxonomy_file, feature_table,metadata_file,obj_col,set_level,per_num=1000):
+def run_osea(taxonomy_file, feature_table,metadata_file,obj_col,set_level, \
+        test_method_name='t_test',per_num=1000):
     """Generate an osea instance ,and compute it's Enrichment scores and pvalue.
     Args:
         obj_col:object column,which can be seen as a 0-1 label,dividing the
@@ -35,13 +36,14 @@ def run_osea(taxonomy_file, feature_table,metadata_file,obj_col,set_level,per_nu
     part1, part2 = stats_test.choose_two_class(heatmap_instance.df,obj_col)
     part1 = part1[heatmap_instance.df_primary_col]
     part2 = part2[heatmap_instance.df_primary_col]
-    rank_list = obtain_rank_list(part1,part2)
+    rank_list = obtain_rank_list(part1,part2,test_method_name)
     osea_real = OSEA.OSEA(rank_list,Taxon_file=taxonomy_file,set_level=set_level)
     ### permutation many times to generate the null distribution
     enrichment_scores = [] # 
     tmp_df = heatmap_instance.df[heatmap_instance.df_primary_col]
+    # TODO we can use pool here to accerate the program.
     for i in range(per_num):
-        rank_list = OSEA.permutation_to_obtain_ranklist(tmp_df)
+        rank_list = OSEA.permutation_to_obtain_ranklist(tmp_df,test_method_name)
         es = osea_real.get_ES(rank_list)
         enrichment_scores.append(es)
     ### get the null distribution for every set

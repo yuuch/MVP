@@ -14,13 +14,10 @@
             click below link to upload your metadata,feature-table,phylogenetic tree and taxonomy table.
             <br>
         <a href="{{ url_for('upload_metadata') }}"><b>upload datas</b></a><br>
-        <a href="{{ url_for('phylogenetic_view') }}"><b>phylogenetic view</b></a><br>
-        <a href="{{ url_for('multi_target_view') }}"><b>multi-target view</b></a><br>
-        <a href="{{ url_for('optimization') }}"><b>optimization</b></a><br>
             <br>
     </div>
     <b>Make sure you upload files to the correct positions, if not ,edit the filename below:</b>
-    <button onclick="rename_files()">Update File names</button><br>
+    <button onclick="update_file_names()">Update File names</button><br>
     feature table file name :<input id='feature_table' value='feature-table.biom'>
     <br>
     sample metadata file name:<input id='metadata' value='demo_metadata.tsv'>
@@ -66,13 +63,16 @@
 
     <section>
             <div id='plot_tree_div'>
-                    input the node num of the subtree root:<input id='node_num' value=0>
-                    <select id='tree_type'>
+                    input the node num of the subtree root:<input id='node_num' value=0 type="hidden">
+                    <select id='tree_type' type="hidden">
                         <option>rectangle_tree</option>
                         <option>circular_tree</option>
                     </select>
-                    <button id= 'plot_tree' onclick="plot_tree()">plot tree</button>
+                    <button id= 'plot_tree' onclick="plot_tree()">get main view</button>
             </div>
+        <a href="{{ url_for('phylogenetic_view') }}" target="_blank"><b>phylogenetic view</b></a><br>
+        <a href="{{ url_for('multi_target_view') }}"target="_blank"><b>multi-target view</b></a><br>
+        <a href="{{ url_for('optimization') }}"target="_blank"><b>optimization</b></a><br>
         <div id='tree_result'>TREE PLOT</div>
         <div id='anno_result'>anno result will be plotted here.</div>
         <div id='beta_div_keys'>
@@ -171,11 +171,6 @@
     -->
     <br>
     <br>
-    <section>
-       <div id='corr_abu_result'>corr_abu</div>
-       <div id='corr_GI_result'>corr_GI</div>
-    </section>
-    <br>
 
     <section>
             <select id="statistics methods">
@@ -220,6 +215,8 @@
         </div>
         <button id='plot_abun_result' onclick="plot_abun()">plot abundance</button>
         <div id='abun_result'style="width:800px;height:600px;"></div>
+        <!--
+
         Feature to be analysied:
             <select id="mySelect1" size=1 type="hidden">
             </select>
@@ -227,11 +224,7 @@
             </select>
           <br>
         <button id="plot_heatmap" onclick="send_heatmap()">plot heatmap</button>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
+        -->
         <h2>statistical methods</h2>
         <div id='stats description'>You can do some test and correlation 
             compute here.For example, t-test or F-test between two groups

@@ -209,19 +209,6 @@ def generate_distribution(arr):
     values = values / sum(values)
     return values, indexes
 
-def obtain_rank_list(df1, df2, test_method_name='t_test'):
-    methods = {'t_test': stats_test.t_test,
-               'F_test': stats_test.F_test}
-    test_method = methods[test_method_name]
-    rank_list_unsort = {}
-    for col in part1.columns:
-        tmp_pvalue = test_method(part1[col],part2[col])
-        rank_list_unsort[col]=tmp_pvalue
-    tmp_list = sorted(rank_list_unsort, key=rank_list_unsort.get,reverse=True)
-    rank_list = {}
-    for ele in tmp_list:
-        rank_list[ele]=rank_list_unsort[ele]
-    return rank_list      
 
 
 

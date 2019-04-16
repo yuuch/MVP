@@ -68,21 +68,21 @@ def heat_map():
     #abundance = content['abundance']
     #variance = content ['variance']
     try:
-        f =  open(metadata.split('/')[-1] + '_heatmap.pickle','rb')
+        f =  open('MVP/pickles/'+metadata.split('/')[-1] + '_heatmap.pickle','rb')
         heatmap_instance = pickle.load(f)
         print('read heatmap from pickle')
         f.close()
     except:
         heatmap_instance = heatmap.Heatmap(metadata, feature_table)
         heatmap_instance.map()
-        with open(metadata.split('/')[-1] + '_heatmap.pickle','wb') as g:
+        with open('MVP/pickles/'+metadata.split('/')[-1] + '_heatmap.pickle','wb') as g:
             pickle.dump(heatmap_instance,g)
             print('write heatmap to pickle')
     #heatmap_instance.filter(prevalence_threshold=prevalence,abundance_num=abundance,variance_num=variance)
     heatmap_instance.map()
     heatmap_instance.sort_by_features(features[0],features[1],features[2])
     try:
-        f = open(metadata.split('/')[-1]+'_mvp_tree.pickle','rb')
+        f = open('MVP/pickles/'+metadata.split('/')[-1]+'_mvp_tree.pickle','rb')
         mvp_tree = pickle.load(f)
         print('read mvp_tree from pickle')
         mvp_tree.get_subtree(ID_num)
@@ -99,7 +99,7 @@ def heat_map():
     else:
         show_label = False
     heatmap_div = heatmap_instance.plotly_div(show_label)
-    result = {0:heatmap.div}
+    result = {0:heatmap_div}
     return jsonify(result)
 
 @bp.route('/plot_tree',methods=('GET','POST'))
@@ -120,7 +120,14 @@ def plot_tree():
         f.close()
     except:
         mvp_tree = corr_tree_new.MvpTree(feature_table,tree,metadata,taxo_file,ID_num)
-        with open(metadata.split('/')[-1]+'_mvp_tree.pickle', 'wb') as g:
+        file_paras = {'feature_table': feature_table,
+            'metadata': metadata,
+            'taxonomy': taxo_file,
+            'tree': tree
+            }
+        with open('MVP/pickles/files.pickle','wb') as f:
+            pickle.dump(file_paras,f)
+        with open('MVP/pickles/'+metadata.split('/')[-1]+'_mvp_tree.pickle', 'wb') as g:
             pickle.dump(mvp_tree,g)
             print('wirte mvp_tree to pickle')
     mvp_tree.get_subtree(ID_num)
@@ -136,14 +143,14 @@ def plot_tree():
     #plot_heatmap
     features = [content['feature0'], content['feature1'], content['feature2']]
     try:
-        f =  open(metadata.split('/')[-1] + '_heatmap.pickle','rb')
+        f =  open('MVP/pickles/'+metadata.split('/')[-1] + '_heatmap.pickle','rb')
         heatmap_instance = pickle.load(f)
         print('read heatmap from pickle')
         f.close()
     except:
         heatmap_instance = heatmap.Heatmap(metadata, feature_table)
         heatmap_instance.map()
-        with open(metadata.split('/')[-1] + '_heatmap.pickle','wb') as g:
+        with open('MVP/pickles/'+metadata.split('/')[-1] + '_heatmap.pickle','wb') as g:
             pickle.dump(heatmap_instance,g)
             print('write heatmap to pickle')
     heatmap_instance.sort_by_features(features[0], features[1], features[2])
@@ -314,15 +321,34 @@ def plot_alpha_rarefaction():
 @bp.route('plot_ecology_scatters',methods=('GET', 'POST'))
 def plot_ecology_scatters():
     content = request.get_json(force=True)
-    metadata = content['metadata']
-    feature_table = content['feature_table']
     obj_col = content['obj_col']
-    tree = content['tree']
     stats_method = content['stats_method']
     corr_method = content['corr_method']
     ID_num = int(content['ID_num'])
-    taxo_file = content['taxonomy']
-    mvp_tree = corr_tree_new.MvpTree(feature_table,tree,metadata,taxo_file,ID_num)
+    try:
+        with open('MVP/pickles/files.pickle','rb') as f:
+            files = pickle.load(f)
+        feature_table = files['feature_table']
+        tree = files['tree']
+        taxo_file = files['taxonomy']
+        metadata = files['metadata']
+    except:
+        print('no files.pickle exist please go to main page get main view first')
+        pass
+
+    try:
+        f = open('MVP/pickles/'+metadata.split('/')[-1]+'_mvp_tree.pickle','rb')
+        mvp_tree = pickle.load(f)
+        print('read mvp_tree from pickle')
+        f.close()
+    except:
+        mvp_tree = corr_tree_new.MvpTree(feature_table,tree,metadata,taxo_file,ID_num)
+        file_paras = {'feature_table': feature_table,
+            'metadata': metadata,
+            'taxonomy': taxo_file,
+            'tree': tree
+            }
+    mvp_tree.get_subtree(ID_num)
     cols = [ele.name for ele in mvp_tree.subtree.get_terminals()]
     ann = annotation.Annotation(cols,feature_table,taxo_file)
     ann_div = ann.plot_annotation()
@@ -361,4 +387,52 @@ def plot_PCA():
         metadata, ID_num)
     result = {0:div}
     return jsonify(result)
-
+@bp.route('/update_file_names', methods=['GET','POST'])
+def update_file_names():
+    try:
+        content = request.get_json(force=True)
+        print(content)
+    except:
+        pass
+    files_dict = {}
+    try:
+        # metadata
+        with open('MVP/pickles/metadata_filename.pickle','rb')as f:
+            metadata_file = pickle.load(f)
+            files_dict['metadata'] = metadata_file['metadata_filename']
+        # tree
+        with open('MVP/pickles/tree_filename.pickle','rb')as f:
+            tree_file = pickle.load(f)
+            files_dict['tree_file_name'] = tree_file['tree_filename']
+        # taxonomy
+        with open('MVP/pickles/taxonomy_filename.pickle','rb')as f:
+            metadata_file = pickle.load(f)
+            files_dict['taxonomy'] = metadata_file['taxonomy_filename']
+            # TODO add taxonomy
+        # feature_table
+        with open('MVP/pickles/feature_table_filename.pickle', 'rb')as f:
+            metadata_file = pickle.load(f)
+            files_dict['feature_table'] = metadata_file['feature_table_filename']
+    except:
+        files_dict = {
+            'feature_table':'feature-table.biom',
+            'metadata': 'demo_metadata.tsv',
+            'taxonomy': 'taxonomy.tsv',
+            'tree_file_name':'tree.nwk'
+        }
+    return jsonify(files_dict)
+@bp.route('/reload_metadata', methods=['GET', 'POST'])
+def reload_metadata():
+    try:
+        with open('MVP/pickles/files.pickle','rb') as f:
+            files = pickle.load(f)
+            metadata = files['metadata']
+    except:
+        metadata = 'MVP/upload_files/demo_metadata.tsv'
+    meta_data_list = read_metadata.read_metadata(metadata)
+    d1 ={}
+    for i in range(len(meta_data_list)):
+        d1[i]=meta_data_list[i]
+    jsd1= jsonify(d1)
+    #print(jsd1)
+    return jsd1

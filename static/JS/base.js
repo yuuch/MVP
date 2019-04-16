@@ -326,14 +326,10 @@ function read_metadata() {
 
 function plot_ecology_scatter(){
             var paras = {};
-            paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
-            paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
             paras.obj_col = document.getElementById('mySelect0').value;
-            paras.tree = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
             paras.stats_method = document.getElementById('stats_test').value;
             paras.corr_method = document.getElementById('corr_coef').value;
             paras.ID_num = document.getElementById('ID_num').value;
-            paras.taxonomy = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
             console.log(JSON.stringify(paras));
                 $.ajax({
                     type: "POST",
@@ -383,3 +379,48 @@ function plot_PCA(){
 
     })
 }
+function update_file_names(){
+    var paras = {}
+    paras.holder = 'holder_text'
+   $.ajax({
+       type: "POST",
+       url: "/graph/update_file_names",
+       data: JSON.stringify(paras),
+       dataType: "json",
+       contentType: "applications/json;charset=utf-8",
+       success:function(data){
+           console.log(JSON.stringify(data));
+           $('#feature_table').val(data['feature_table']);
+           $('#metadata').val(data['metadata']);
+           $('#taxonomy_file').val(data['taxonomy']);
+           $('tree_file_name').val(data['tree_file_name']);
+       },
+       error:function(xhr,status){
+           alert('sorry,errors appeared when dealing with update files')
+       }
+   }) 
+}
+function reload_metadata(){
+              var features;
+              $.ajax({
+                        type: "POST",
+                        url: "/graph/reload_metadata",
+                        dataType: "json",
+                        contentType: "application/json;charset=utf-8",
+                        success: function(data){
+                                      features=data;
+                                      //alert(data[0]);
+                                      var data_length = Object.keys(data).length;
+                                      for(i=0;i<data_length;i++){
+              var option = document.createElement("option");
+                 temp = features[i];
+              option.text = temp;
+              x0.add(option);
+              };
+                                      },
+
+                        failure: function(errMsg){alert(errMsg);}
+                    }).responsetext;
+              var x0 = document.getElementById("mySelect0");
+          }
+
