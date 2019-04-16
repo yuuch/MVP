@@ -62,6 +62,10 @@ class MvpTree(object):
         self.lineage = taxonomy_df[Taxon]
         
     def get_colors(self, colors, color_index):
+        '''
+        get color for every clade in the mvp tree.
+        colored by the domain otu in every clade.
+        '''
         for clade in self.feature_tree.find_clades(order='level'):
             try:
                 lineages = self.lineage[clade.domain_otu]

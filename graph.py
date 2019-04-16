@@ -132,13 +132,13 @@ def plot_tree():
             print('wirte mvp_tree to pickle')
     mvp_tree.get_subtree(ID_num)
     cols = [ele.name for ele in mvp_tree.subtree.get_terminals()]
-    ann = annotation.Annotation(cols,feature_table,taxo_file)
-    ann_div = ann.plot_annotation()
-    mvp_tree.get_colors(ann.colors,ann.mapped_phylum_colors)
-    tree_div = mvp_tree.plot_tree()
     # plot_anno
     ann = annotation.Annotation(cols,feature_table,taxo_file)
     ann_div = ann.plot_annotation()
+    with open('MVP/pickles/'+taxo_file.split('/')[-1]+'_annotation.pickle','wb') as f:
+        pickle.dump(ann,f)
+    mvp_tree.get_colors(ann.colors,ann.mapped_phylum_colors)
+    tree_div = mvp_tree.plot_tree()
     
     #plot_heatmap
     features = [content['feature0'], content['feature1'], content['feature2']]
@@ -218,7 +218,18 @@ def plot_OSEA():
     obj_col = content['obj_col']
     osea_result = perform_osea.run_osea(taxonomy, feature_table, 
         metadata,obj_col,set_level)
-    result = {0:perform_osea.plot_final_result(osea_result)}
+    try:
+        with open('MVP/pickles/'+taxonomy.split('/')[-1]+'_annotation.pickle'\
+            ,'rb') as f:
+            ann = pickle.load(f)
+            colors = ann.colors
+            color_index = ann.mapped_phylum_colors
+    except:
+        colors = None 
+        color_index = None 
+    div = perform_osea.plot_final_result(osea_result,taxonomy,colors=colors,\
+        color_index = color_index)
+    result = {0: div}
     return jsonify(result)
 
 @bp.route('/plot_dim_reduce',methods=('GET' ,'POST'))

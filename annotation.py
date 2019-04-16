@@ -11,6 +11,7 @@ class Annotation(object):
         #obtain features(cols) from tree.get_terminals() which parallel to the tree.
         self.cols = cols
         self.feature_table = biom.load_table(feature_table_file).to_dataframe().to_dense()
+        self.feature_table = self.feature_table.div(self.feature_table.sum(axis=0),axis=1)
         self.taxonomy = pd.read_csv(taxo_file,sep='\t')
         self.taxonomy.index = self.taxonomy['Feature ID']
         self.map_taxo(self.cols)

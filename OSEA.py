@@ -133,7 +133,7 @@ class OSEA(object):
         #self.es = es
         return es
 
-def permutation_to_obtain_ranklist(feature_table, test_method_name='t_test'):
+def permutation_to_obtain_ranklist(feature_table, randseed=1,test_method_name='t_test'):
     """
     Randomly generate 0,1 labels , rank list 
     Arg:
@@ -147,6 +147,7 @@ def permutation_to_obtain_ranklist(feature_table, test_method_name='t_test'):
     n = df.shape[0]
     part1_index = []
     part2_index = []
+    np.random.seed(randseed)
     for i in range(n):
         if np.random.randint(0,2):
             part1_index.append(i)
