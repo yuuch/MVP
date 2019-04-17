@@ -153,6 +153,7 @@ function read_metadata() {
             stats_paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
             stats_paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
             stats_paras.label_col = document.getElementById('mySelect0').value;
+            stats_paras.taxonomy = 'MVP/upload_files/'+document.getElementById('taxonomy_file').value;
             console.log(JSON.stringify(stats_paras))
                 $.ajax({
                     type: "POST",

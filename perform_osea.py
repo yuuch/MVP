@@ -114,6 +114,22 @@ def plot_final_result(final_result, taxo_file,colors= None, color_index=None):
                 )
             data.append(temp_trace)
         print('there are colors')
+    line_001 = plotly.graph_objs.Scatter(
+        x = list(final_result.keys()),
+        y = [-math.log(0.01) for ele in final_result.keys()],
+        mode = 'lines',
+        line=dict(color='rgb(0,0,125)',dash='dot'),
+        name = '- log(0.01)'
+    )
+    data.append(line_001)
+    line_005 = plotly.graph_objs.Scatter(
+        x = list(final_result.keys()),
+        y = [-math.log(0.05) for ele in final_result.keys()],
+        mode = 'lines',
+        line=dict(color='rgb(0,125,0)',dash='dash'),
+        name = '- log(0.05)'
+    )
+    data.append(line_005)
     """
     trace_bar = plotly.graph_objs.Bar(
         x = list(final_result.keys()),
@@ -125,7 +141,9 @@ def plot_final_result(final_result, taxo_file,colors= None, color_index=None):
     #########trace_scatter = plotly.graph_objs.Scatter(mode='line',)
     # plot line for -math.log(0.05 or 0.0.1)
     layout = plotly.graph_objs.Layout(
-        title = 'OSEA result'
+        title = 'OSEA result',
+        yaxis = dict(title='- log pvalue')
+
     )
     fig = plotly.graph_objs.Figure(data=data, layout=layout)
     div_str = plotly.offline.plot(fig, output_type='div')

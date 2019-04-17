@@ -29,7 +29,7 @@ class Annotation(object):
             if len(self.feature_table.loc[feature_name])==0:
                 continue
             else:
-                feature_count = sum(list(self.feature_table.loc[feature_name]))
+                feature_count = np.mean(list(self.feature_table.loc[feature_name]))
             unassigned = ['Unassigned',' p__unassigned',' c__unassigned',' o__unassigned',' f__unassigned'
                          ,' g__unassigned',' s__unassigned']
             if feature_count == 0:

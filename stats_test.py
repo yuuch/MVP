@@ -2,6 +2,7 @@ import numpy as np
 import scipy.stats as stats
 import pandas as pd
 import plotly
+import math
 def jacknife(arr):
     n = len(arr)
     if n == 1:
@@ -89,16 +90,58 @@ def perform_test(df1, df2, method_name):
     else: # for t_test and F_test
         for col in df1.columns:
             value = method(df1[col], df2[col])
-            result_dict[col] = value
+            result_dict[col] = -math.log(value)
     return result_dict
-def plot_result_dict(result_dict):
-    data = [plotly.graph_objs.Scatter(
+def plot_result_dict(result_dict,cols=None,taxo_file=None,colors=None,color_index=None):
+    taxonomy = pd.read_csv(taxo_file, sep='\t')
+    print('read files successfully')
+    assert len(colors)
+    data = []
+    taxonomy = pd.read_csv(taxo_file, sep='\t')
+    taxo_col = 'Taxon' #TODO re match
+    feature_id = 'Feature ID'
+    taxonomy = taxonomy.set_index(feature_id)
+    if not cols:
+        cols = result_dict.keys()
+    for ele in cols:
+        lineage =taxonomy.loc[ele][taxo_col].split(';') 
+        try:
+            phylum = lineage[1]
+        except:
+            phylum = ' p__unassigned'
+        try:
+            color = colors[color_index[phylum]]  
+        except:
+            color = 'rgb(0,0,0)'
+        trace = plotly.graph_objs.Scatter(
+            x = [ele],
+            y = [result_dict[ele]],
+            mode = 'markers',
+            marker = dict(color=color),
+            showlegend=False
+        )
+        data.append(trace)
+    line_001 = plotly.graph_objs.Scatter(
         x = list(result_dict.keys()),
-        y = list(result_dict.values()),
-        mode = 'markers'
-        )]
+        y = [-math.log(0.01) for ele in result_dict.keys()],
+        mode = 'lines',
+        line=dict(color='rgb(0,0,125)',dash='dot'),
+        name = '- log(0.01)'
+    )
+    data.append(line_001)
+    line_005 = plotly.graph_objs.Scatter(
+        x = list(result_dict.keys()),
+        y = [-math.log(0.05) for ele in result_dict.keys()],
+        mode = 'lines',
+        line=dict(color='rgb(0,125,0)',dash='dash'),
+        name = '- log(0.05)'
+    )
+    data.append(line_005)
+    
     layout =plotly.graph_objs.Layout(
-        autosize = True
+        autosize = True,
+        yaxis=dict(title= '- log pvalue')
+
     )
     fig = plotly.graph_objs.Figure(data=data, layout=layout)
     div_str = plotly.offline.plot(fig, output_type='div')

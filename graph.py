@@ -114,7 +114,7 @@ def plot_tree():
     metadata  = content['metadata']
     #tree = circular_tree.read_tree(tree_file,file_type)
     try:
-        f = open(metadata.split('/')[-1]+'_mvp_tree.pickle','rb')
+        f = open('MVP/pickles/'+metadata.split('/')[-1]+'_mvp_tree.pickle','rb')
         mvp_tree = pickle.load(f)
         print('read mvp_tree from pickle')
         f.close()
@@ -197,6 +197,7 @@ def plot_stats_test():
     metadata = content['metadata']
     feature_table = content['feature_table']
     test_method = content['stats_method']
+    taxonomy = content['taxonomy']
     #features = [content['feature0'],content['feature1'],content['feature2']]
     heatmap_instance = heatmap.Heatmap(metadata,feature_table)
     heatmap_instance.map()
@@ -204,7 +205,25 @@ def plot_stats_test():
     part1  = part1[heatmap_instance.df_primary_col]
     part2  = part2[heatmap_instance.df_primary_col]
     test_result = stats_test.perform_test(part1,part2,test_method)
-    div_str = stats_test.plot_result_dict(test_result)
+    try:
+        with open('MVP/pickles/'+taxonomy.split('/')[-1]+\
+            '_annotation.pickle','rb') as f:
+            ann = pickle.load(f) 
+            colors = ann.colors
+            color_index = ann.mapped_phylum_colors
+            print('read annotation pickles by stats test')
+    except:
+        colors = None
+        color_index = None
+    try:
+        with open('MVP/pickles/'+metadata.split('/')[-1]+\
+            '_mvp_tree.pickle','rb') as f:
+            mvp_tree = pickle.load(f)
+            cols = [ele.name for ele in mvp_tree.feature_tree.get_terminals()]
+    except:
+        cols = None
+    #print(colors)
+    div_str = stats_test.plot_result_dict(test_result,cols,taxonomy,colors,color_index)
     result={0:div_str}
     return jsonify(result)
 
