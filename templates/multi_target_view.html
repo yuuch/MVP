@@ -9,21 +9,25 @@
        <h1>metadata project</h2>
         Select three numerical features from metadata columns:
         <br>
-       <select>
+        <button onclick="get_numeric_cols()">Get numeric columns</button>
+       <select id='mySelect1'>
+           <option></option>
+       </select>
+       <select id='mySelect2'>
+           <option></option>
+       </select>
+       <select id='mySelect3'>
            <option></option>
        </select>
 
-       <select>
-           <option></option>
-       </select>
-
-       <select>
-           <option></option>
-       </select>
 
 
+       <input id='ID_num'>
        <button id='metadata project' onclick='plot_PCA()'>plot PCA</button>
        <div id='PCA_result'>PCA result</div>
+       <div id='sub_tree'>subtree result</div>
+       <div id='ann'>anono result</div>
+
 
     </body>
 

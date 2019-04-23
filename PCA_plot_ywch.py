@@ -6,23 +6,37 @@ import plotly
 from sklearn.decomposition import PCA
 from plotly import tools
 import corr_tree_new
+from sklearn import preprocessing
+def judge_numeric_col(df):
+    num_cols = []
+    for col in df.columns:
+        try:
+            int(df[col].values[2])
+            num_cols.append(col)
+        except:
+            pass
+    return num_cols
 
-def func1(M,numeric_cols, feature_table_path, tree_path, metadata_path, ID_num,\
-    axises_num=[0,1],n=4):
+
+def pca_function(mvp_tree, ID_num,axis_names=None,n=4):
+
     """ PCA the matrix, plot the scatter and plot some axises.
         Args: M : numpy.ndarray
             axises_num: the order number of the axises  
     """
+    numeric_cols = judge_numeric_col(mvp_tree.metadata)
+    M = mvp_tree.metadata[numeric_cols]
+    M = preprocessing.scale(M)
     pca = PCA()
     pca.fit(M)
     scatters = pca.fit_transform(M)
     #print(len(scatters))
+    ratio = pca.explained_variance_ratio_
     pairs = []
     for i in range(min(4,n)):
         for j in range(i):
             pairs.append((j,i))
     traces_array = []
-    mvp_tree = corr_tree_new.MvpTree(feature_table_path,tree_path,metadata_path,ID_num=ID_num)
     sample_names = mvp_tree.metadata.index.values
     sample_abuns = mvp_tree.subtree.sample_series
     for pair in pairs:
@@ -38,7 +52,6 @@ def func1(M,numeric_cols, feature_table_path, tree_path, metadata_path, ID_num,\
                 Max = temp
             x.append(ele[first])
             y.append(ele[second])
-        #print(len(y))
     # get axis
         n = len(pca.components_[0])
         axis_results = []
@@ -56,8 +69,13 @@ def func1(M,numeric_cols, feature_table_path, tree_path, metadata_path, ID_num,\
         trace0 = go.Scatter(x=x,y=y,name='',mode='markers',marker=dict(color=colors,\
             colorbar=dict(title='abundance'),colorscale='Viridis'),showlegend=False,text=text)
         traces.append(trace0)
+
     # adjust the length of project axises
-        for i in axises_num:
+        if axis_names == None:
+            axis_names = numeric_cols[0:2]
+    # get name order in the numeric cols
+        name_order = [numeric_cols.index(ele) for ele in axis_names]
+        for i in name_order:
             temp0 = 0
             temp1 = 0
             temp3 = axis_results[i][first]**2+axis_results[i][second]**2 
@@ -68,9 +86,9 @@ def func1(M,numeric_cols, feature_table_path, tree_path, metadata_path, ID_num,\
                 showlegend=False)
             traces.append(trace)
         traces_array.append(traces)
-    return traces_array,pairs
+    return traces_array, pairs, ratio
     
-def six_subplot(traces_array, pairs, num=6):
+def six_subplot(traces_array, pairs, ratio, num=6):
     fig = tools.make_subplots(rows=2,cols=3)
     for i in range(len(traces_array)):
         if i < 3:
@@ -80,28 +98,18 @@ def six_subplot(traces_array, pairs, num=6):
             for trace in traces_array[i]:
                 fig.append_trace(trace,2,i+1-3)
     for i in range(len(pairs)):
-        fig['layout']['xaxis'+str(i+1)].update(title='PC'+str(pairs[i][0]))
-        fig['layout']['yaxis'+str(i+1)].update(title='PC'+str(pairs[i][1]))
+        fig['layout']['xaxis'+str(i+1)].update(title='PC'+str(pairs[i][0])+': '\
+            +"{0:.2f}".format(ratio[pairs[i][0]]*100) + '%')
+        fig['layout']['yaxis'+str(i+1)].update(title='PC'+str(pairs[i][1])+': '\
+            +"{0:.2f}".format(ratio[pairs[i][1]]*100) + '%') 
     div = plotly.offline.plot(fig,output_type='div')
     return div
 
-def judge_numeric_col(df):
-    num_cols = []
-    for col in df.columns:
-        try:
-            int(df[col].values[0])
-            num_cols.append(col)
-        except:
-            pass
-    return num_cols
-
-def run_this_script(df,feature_table_path, tree_path, metadata_path, ID_num):
-
-    numeric_cols = judge_numeric_col(df)
+def run_this_script(mvp_tree, ID_num,axis_names=None):
+    #  df is metadata df ,obtain the numerical cols
     #print(numeric_cols)
-    M = df[numeric_cols].values
-    traces_array ,pairs = func1(M, numeric_cols,feature_table_path, tree_path, metadata_path, ID_num)
-    div = six_subplot(traces_array, pairs)
+    traces_array ,pairs, ratio= pca_function(mvp_tree, ID_num,axis_names)
+    div = six_subplot(traces_array, pairs,ratio)
     return div
 
 if __name__ == "__main__":
@@ -111,7 +119,8 @@ if __name__ == "__main__":
     feature_table_path='upload_files/feature-table.biom'
     tree_path='upload_files/tree.nwk'
     metadata_path='upload_files/demo_metadata.tsv'
-    ID_num=233
-    div = run_this_script(df,feature_table_path, tree_path, metadata_path, ID_num)
+    ID_num=114
+    mvp_tree = corr_tree_new.MvpTree(feature_table_path,tree_path,metadata_path,ID_num=ID_num)
+    div = run_this_script(mvp_tree, ID_num,axis_names=['Year','Day'])
     f = open('Feb15.html', 'w')
     f.write(div)

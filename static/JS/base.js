@@ -358,12 +358,34 @@ function jump_html(){
     }
     )
 }
+function get_numeric_cols(){
+    var paras = {};
+    $.ajax({
+        type:"POST",
+        url:"/graph/get_numeric_columns",
+        data:JSON.stringify(paras),
+        datatype: "json",
+        contentType: "applications/json;charset=utf-8",
+        success:function(data){
+            console.log(data) 
+            var $select = $('#mySelect1'); 
+            $select.find('option').remove();  
+            $.each(data,function(key, value) 
+{
+    $select.append('<option value=' + key + '>' + value + '</option>');
+});
+        var options = document.getElementById('mySelect1').innerHTML;
+        var second2 = document.getElementById('mySelect2');
+        var second3 = document.getElementById('mySelect3');
+            second2.innerHTML=options;
+            second3.innerHTML=options;
+            console.log(options);
+        }
+    })
+}
 function plot_PCA(){
         var paras = {};
-        paras.metadata = 'MVP/upload_files/'+document.getElementById('metadata').value;
-        paras.feature_table = 'MVP/upload_files/'+document.getElementById('feature_table').value;
         paras.ID_num = document.getElementById('ID_num').value;
-        paras.tree_path = 'MVP/upload_files/'+document.getElementById('tree_file_name').value;
         console.log(JSON.stringify(paras));
     $.ajax({
         type: "POST",
@@ -373,6 +395,8 @@ function plot_PCA(){
         contentType: "applications/json;charset=utf-8",
         success: function(data){
                      $('#PCA_result').html(data[0]);
+                     $('#sub_tree').html(data[1]);
+                     $('#ann').html(data[2]);
         },
         error: function(xhr,status){
                     alert('sorry, there are problems in plot PCA')

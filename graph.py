@@ -402,20 +402,53 @@ def plot_ecology_scatters():
 def jump_html():
     return render_template('test_js.html')
 
+@bp.route('get_numeric_columns', methods=('GET', 'POST'))
+def get_numeric_columns():
+    try:
+        with open('MVP/pickles/files.pickle','rb') as f:
+            files = pickle.load(f)
+        metadata_path = files['metadata']
+        df = pd.read_csv(metadata_path,sep='\t')
+        cols = PCA_plot_ywch.judge_numeric_col(df)
+        cols_dict = {}
+        for ele in cols:
+            cols_dict[ele]=[ele]
+        return jsonify(cols_dict)
+    except:
+        return jsonify({0:'None'})
+
 @bp.route('/plot_PCA',methods=('GET','POST'))
 def plot_PCA():
     content = request.get_json(force=True)
     print(content)
-    metadata = content['metadata']
-    tree_path = content['tree_path']
-    feature_table = content['feature_table']
     ID_num =int(content['ID_num'])
-    metadata_df = pd.read_csv(metadata,sep='\t')
-    metadata_df = metadata_df.drop(0)
-    #print(dir(PCA_plot_ywch))
-    div = PCA_plot_ywch.run_this_script(metadata_df, feature_table, tree_path,\
-        metadata, ID_num)
-    result = {0:div}
+    try:
+        with open('MVP/pickles/files.pickle','rb') as f:
+            files = pickle.load(f)
+        feature_table = files['feature_table']
+        tree = files['tree']
+        taxo_file = files['taxonomy']
+        metadata = files['metadata']
+    except:
+        print('no files.pickle exist please go to main page get main view first')
+    try:
+        f = open('MVP/pickles/'+metadata.split('/')[-1]+'_mvp_tree.pickle','rb')
+        mvp_tree = pickle.load(f)
+        print('read mvp_tree from pickle')
+        mvp_tree.get_subtree(ID_num)
+        f.close()
+    except:
+        string_ = 'there are no pickles to read.please try plot_tree button'
+        result = {0: string_}
+        return jsonify(result)
+    pca_div = PCA_plot_ywch.run_this_script(mvp_tree, ID_num)
+    cols = [ele.name for ele in mvp_tree.subtree.get_terminals()]
+    ann = annotation.Annotation(cols,feature_table,taxo_file)
+    ann_div = ann.plot_annotation()
+    mvp_tree.get_colors(ann.colors,ann.mapped_phylum_colors)
+    mvp_tree.get_subtree(ID_num)
+    tree_div = mvp_tree.plot_tree()
+    result = {0: pca_div, 1:tree_div,2:ann_div}
     return jsonify(result)
 @bp.route('/update_file_names', methods=['GET','POST'])
 def update_file_names():
