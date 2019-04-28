@@ -8,5 +8,33 @@
     </head>
     <body>
         <h1>Optimization</h1>
+    <button id='read_metadata'onclick="reload_metadata()">load metadata</button> 
+    <br>
+    Choose the feature you are interested in :
+    <select id="mySelect0" size=1>
+    <option>None</option>
+    </select>
+
+    <select id="mySelect1" size=1>
+    <option>None</option>
+    </select>
+    <br>
+    <button onclick="get_detail_feature()">get detail features</button>
+
+    <button onclick="run_optimization()">run optimize</button>
+
+    <div>the mean auc before optimize</div>
+    <div id='auc_before_opt'>0.6</div>
+
+    <div> the optimized mean auc</div>
+    <div id='auc_after_opt'>0.8</div>
+
+    <div>the mean acc before optimize</div>
+    <div id='acc_before_opt'>0.6</div>
+
+    <div> the optimized mean acc</div>
+    <div id='acc_after_opt'>0.8</div>
+
+    <div id = 'optimized_heatmap'></div>
     </body>
     </html>

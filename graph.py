@@ -10,6 +10,7 @@ import re
 #print(sys.path)
 sys.path.append("MVP/")
 import pandas as pd
+import new_sep_tree
 import alpha_rarefaction
 import read_metadata
 import heatmap
@@ -499,3 +500,56 @@ def reload_metadata():
     jsd1= jsonify(d1)
     #print(jsd1)
     return jsd1
+
+@bp.route('/optimization', methods=['GET', 'POST'])
+def optimization():
+    content = request.get_json(force=True)
+    try:
+        with open('MVP/pickles/files.pickle','rb') as f:
+            files = pickle.load(f)
+            metadata = files['metadata']
+            tree = files['tree']
+    except:
+        pass 
+    pickle_file = 'MVP/pickles/'+metadata.split('/')[-1]+'_mvp_tree.pickle'
+    pos_label = content['pos_label']
+    obj_col = content['obj_col']
+    result = new_sep_tree.run_this_script(pickle_file,metadata,obj_col,pos_label)
+    dict1 = {
+    'b_auc': result[0],
+    'b_acc' :  result[1],
+    'a_auc ': result[2],
+    'a_acc':  result[3],
+    'div' : result[4]
+    }
+    return jsonify(dict1)
+
+@bp.route('/get_pos_label', methods=['GET', 'POST'])
+def get_pos_label():
+    content = request.get_json(force=True)
+    obj_col = content['obj_col']
+    try:
+        with open('MVP/pickles/files.pickle','rb') as f:
+            files = pickle.load(f)
+            metadata = files['metadata']
+    except:
+        metadata = 'MVP/upload_files/demo_metadata.tsv'
+    metadata = pd.read_csv(metadata,sep='\t')
+    appeared = []
+    for ele in metadata[obj_col]:
+        if ele in appeared:
+            pass
+        else:
+            appeared.append(ele)
+    d1 = {}
+    i = 0
+    for ele in appeared:
+        d1[i]=ele
+        i+=1
+    return jsonify(d1)
+
+    
+
+
+    
+            

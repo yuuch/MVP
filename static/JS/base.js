@@ -449,3 +449,30 @@ function reload_metadata(){
               var x0 = document.getElementById("mySelect0");
           }
 
+function get_detail_feature(){
+    var paras ={};
+    paras.obj_col = document.getElementById('mySelect0').value;
+    $.ajax({
+        type: "POST",
+        url: "/graph/get_pos_label",
+        data: JSON.stringify(paras),
+        dataType: "json",
+        contentType: "application/json;charset=utf-8",
+        success: function(data){
+                      features=data;
+                      //alert(data[0]);
+                      var data_length = Object.keys(data).length;
+                      for(i=0;i<data_length;i++){
+    var option = document.createElement("option");
+    temp = features[i];
+    option.text = temp;
+    x0.add(option);
+    };
+                      },
+
+        failure: function(errMsg){alert(errMsg);}
+    }).responsetext;
+    var x0 = document.getElementById("mySelect1");
+    var $select =$('#mySelect1');
+    $select.find('option').remove();
+}

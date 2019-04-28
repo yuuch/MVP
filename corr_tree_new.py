@@ -118,11 +118,11 @@ class MvpTree(object):
             flag = 0
             for clade in node.clades:
                 if flag == 0:
-                    tmp = copy.copy(self.recursion_tree(clade).sample_series)
+                    tmp = copy.deepcopy(self.recursion_tree(clade).sample_series)
                 else:
                     tmp += self.recursion_tree(clade).sample_series   
                 flag = 1
-            node.sample_series = tmp
+            node.sample_series = copy.copy(tmp)
         else: # leaf node which has been init above.
             try:
                 a = node.sample_series
